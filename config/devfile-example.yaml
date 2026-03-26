@@ -1,0 +1,88 @@
+# ============================================================
+# DevFile 예제 - GitLab Workspaces에서 사용하는 개발 환경 정의
+# GitLab 프로젝트 루트에 '.devfile.yaml' 파일로 저장하세요.
+# ============================================================
+schemaVersion: 2.2.0
+
+metadata:
+  name: my-workspace
+  version: 1.0.0
+
+# ----------------------------------------
+# 컴포넌트 정의 (컨테이너, 볼륨 등)
+# ----------------------------------------
+components:
+
+  # 메인 개발 컨테이너
+  - name: dev-container
+    container:
+      # Universal Developer Image (GitLab 권장)
+      image: registry.gitlab.com/gitlab-org/remote-development/gitlab-remote-development-docs/ubuntu:22.04
+      # 또는 커스텀 이미지 사용:
+      # image: your-registry.example.com/dev-image:latest
+
+      # 개발 컨테이너 리소스 설정
+      memoryLimit: 2Gi
+      memoryRequest: 512Mi
+      cpuLimit: "2"
+      cpuRequest: "0.5"
+
+      # 포트 포워딩 설정
+      endpoints:
+        - name: http-3000
+          targetPort: 3000
+          exposure: public
+          protocol: https
+        - name: http-8080
+          targetPort: 8080
+          exposure: public
+          protocol: https
+
+      # 볼륨 마운트
+      volumeMounts:
+        - name: workspace-storage
+          path: /workspace
+
+      # 환경 변수
+      env:
+        - name: HOME
+          value: /home/user
+        - name: GOPATH
+          value: /workspace/go
+
+  # 퍼시스턴트 스토리지
+  - name: workspace-storage
+    volume:
+      size: 10Gi
+      ephemeral: false  # true로 설정하면 재시작 시 데이터 삭제
+
+# ----------------------------------------
+# 커맨드 정의 (시작/빌드/실행 등)
+# ----------------------------------------
+commands:
+  - id: install-deps
+    exec:
+      label: "Install Dependencies"
+      component: dev-container
+      workingDir: /workspace
+      commandLine: "npm install || pip install -r requirements.txt || echo 'No package manager found'"
+
+  - id: start-dev-server
+    exec:
+      label: "Start Development Server"
+      component: dev-container
+      workingDir: /workspace
+      commandLine: "npm run dev || python manage.py runserver 0.0.0.0:8000"
+      group:
+        kind: run
+        isDefault: true
+
+  - id: build
+    exec:
+      label: "Build"
+      component: dev-container
+      workingDir: /workspace
+      commandLine: "npm run build || make build || echo 'No build command configured'"
+      group:
+        kind: build
+        isDefault: true

@@ -1,0 +1,67 @@
+# ============================================================
+# GitLab Workspaces Proxy - Helm Values
+# ============================================================
+# 이 파일의 플레이스홀더는 설치 스크립트에서 자동으로 치환됩니다.
+# ============================================================
+
+# Workspaces Proxy 인증 설정
+auth:
+  # GitLab OAuth 애플리케이션 Client ID (스크립트에서 자동 생성)
+  client_id: "__OAUTH_CLIENT_ID__"
+  # GitLab OAuth 애플리케이션 Client Secret (스크립트에서 자동 생성)
+  client_secret: "__OAUTH_CLIENT_SECRET__"
+  # 서명에 사용되는 랜덤 시크릿 키
+  signing_key: "__SIGNING_KEY__"
+  # 암호화에 사용되는 랜덤 시크릿 키
+  encryption_key: "__ENCRYPTION_KEY__"
+
+# GitLab 인스턴스 설정
+gitlab:
+  # GitLab 외부 URL
+  url: "https://gitlab.example.com"
+
+# 도메인 설정
+hosts:
+  # Workspaces 도메인 (와일드카드 인증서 적용)
+  domain: "workspaces.example.com"
+  # SSH 기능 비활성화 (선택사항)
+  ssh: false
+
+# Ingress 설정
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    # WebSocket 지원
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+  # TLS 설정
+  tls:
+    enabled: true
+    secretName: "gitlab-workspaces-proxy-tls"
+
+# cert-manager를 사용한 TLS 인증서 자동 발급
+certificate:
+  create: true
+  issuerRef:
+    name: "letsencrypt-prod"
+    kind: "ClusterIssuer"
+    group: "cert-manager.io"
+
+# 리소스 설정
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+# 레플리카 수
+replicaCount: 1

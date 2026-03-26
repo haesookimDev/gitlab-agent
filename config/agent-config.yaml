@@ -1,0 +1,44 @@
+# ============================================================
+# GitLab Agent for Kubernetes - 설정 파일
+# 저장 위치: GitLab 프로젝트 내 .gitlab/agents/<AGENT_NAME>/config.yaml
+# ============================================================
+
+# ----------------------------------------
+# GitLab CI/CD 터널 설정 (선택사항)
+# ----------------------------------------
+ci_access:
+  projects:
+    - id: your-group/your-project  # GitLab 프로젝트 경로로 변경
+
+# ----------------------------------------
+# Kubernetes API 접근 설정 (선택사항)
+# ----------------------------------------
+# user_access:
+#   projects:
+#     - id: your-group/your-project
+
+# ----------------------------------------
+# GitLab Workspaces 설정 (필수)
+# ----------------------------------------
+remote_development:
+  enabled: true
+
+  # DNS 영역 설정 - Workspaces에서 사용할 도메인
+  # 예: workspace-xxx.workspaces.example.com
+  dns_zone: "workspaces.example.com"  # .env의 WORKSPACES_DOMAIN과 동일하게 설정
+
+  # GitLab URL (에이전트가 통신할 GitLab 인스턴스)
+  gitlab_url: "https://gitlab.example.com"  # .env의 GITLAB_URL과 동일하게 설정
+
+  # Workspace 리소스 제한 설정
+  # workspace_proxy:
+  #   ingress:
+  #     host: "workspaces.example.com"
+
+  # Workspace 기본 리소스 설정
+  # network_policy_egress:
+  #   - ports:
+  #     - port: 443
+  #       protocol: TCP
+  #     - port: 80
+  #       protocol: TCP
