@@ -203,6 +203,96 @@ remote_development:
 3. 에이전트 선택 → 프로젝트 선택 → 생성
 4. 또는 **MR 페이지 → "Open in Workspace"** (GitLab 18.0+)
 
+## 리소스 사이징 (최대 5,000 동시 사용자)
+
+### 기준값 (GitLab 18.9 공식)
+
+| 항목 | 기본 Request | 기본 Limit | 최대 허용 Limit |
+|------|------------|-----------|--------------|
+| Workspace CPU | **500m** | 1 core | 2 core |
+| Workspace Memory | **512 Mi** | 1 GiB | 4 GiB |
+| Workspace Storage | - | - | **10 GiB** (PVC) |
+| nginx WebSocket | - | < 1 core | ~50K conn/replica |
+
+### 동시 사용자 규모별 리소스 요약
+
+> 계산 전제: Workspace CPU Request 500m, Memory Request 512Mi, 20% 오토스케일 버퍼 포함
+
+| Tier | 동시 사용자 | WS CPU Req | WS Mem Req | 스토리지 | WS 노드 | 전체 노드 |
+|------|-----------|-----------|-----------|--------|--------|---------|
+| **XS** | 50 | 25 cores | 25 GiB | 500 GiB | 5 × (8c/32G) | **7** |
+| **S** | 100 | 50 cores | 50 GiB | 1 TiB | 9 × (8c/32G) | **11** |
+| **M** | 250 | 125 cores | 125 GiB | 2.44 TiB | 11 × (16c/64G) | **14** |
+| **L** | 500 | 250 cores | 250 GiB | 4.88 TiB | 22 × (16c/64G) | **25** |
+| **XL** | 1,000 | 500 cores | 500 GiB | 9.77 TiB | 21 × (32c/128G) | **25** |
+| **2XL** | 2,500 | 1,250 cores | 1.22 TiB | 24.41 TiB | 52 × (32c/128G) | **57** |
+| **3XL** | 5,000 | 2,500 cores | 2.44 TiB | 48.83 TiB | 104 × (32c/128G) | **110** ⚠️ |
+
+> ⚠️ **3XL (5,000명)**: 멀티 클러스터 구성 필수 권장 (클러스터당 1,000~1,500 Workspace)
+
+### 인프라 컴포넌트별 리소스 (Tier별)
+
+| 컴포넌트 | XS | S | M | L | XL | 2XL | 3XL |
+|---------|----|----|----|----|-----|------|------|
+| **GitLab Agent replicas** | 1 | 1 | 1 | 1 | 2 | 3 | 5 |
+| Agent CPU Req (합계) | 200m | 200m | 500m | 500m | 600m | 1.5c | 5c |
+| Agent Mem Req (합계) | 256Mi | 256Mi | 512Mi | 512Mi | 768Mi | 1.5G | 5G |
+| **Proxy replicas** | 1 | 1 | 2 | 2 | 3 | 5 | 8 |
+| Proxy CPU Req (합계) | 200m | 300m | 400m | 600m | 1.5c | 3c | 6.4c |
+| Proxy Mem Req (합계) | 256Mi | 384Mi | 512Mi | 768Mi | 1.5G | 3.75G | 8G |
+| **ingress-nginx replicas** | 2 | 2 | 2 | 2 | 3 | 4 | 6 |
+| Ingress CPU Req (합계) | 400m | 400m | 400m | 600m | 1.2c | 2c | 3.6c |
+| cert-manager (정적) | 300m/320Mi | ← 전 티어 동일 → | | | | | |
+
+### 리소스 계산기 사용
+
+```bash
+# .env에 동시 사용자 수 설정
+echo 'CONCURRENT_USERS=500' >> .env
+
+# 리소스 계산 및 파일 생성
+bash scripts/resource-calculator.sh 500
+
+# 계산 후 ResourceQuota/LimitRange 클러스터에 직접 적용
+bash scripts/resource-calculator.sh 500 --apply
+```
+
+계산기 출력 파일:
+- `config/resource-tiers/active-tier.yaml` — 컴포넌트별 Helm values
+- `config/resource-tiers/k8s-resource-quota-<TIER>.yaml` — K8s ResourceQuota + LimitRange
+
+### agent-config.yaml 리소스 설정 (자동 반영)
+
+```yaml
+remote_development:
+  enabled: true
+  dns_zone: "workspaces.example.com"
+
+  # 쿼터 (resource-calculator.sh 값 자동 적용)
+  workspaces_quota: 500          # 에이전트당 최대 Workspace 수
+  workspaces_per_user_quota: 5   # 사용자당 최대 Workspace 수
+
+  # 기본 리소스 (GitLab 18.9 공식 기본값)
+  default_resources_per_workspace_container:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+  # 최대 허용 리소스 (devfile 상한)
+  max_resources_per_workspace:
+    requests:
+      cpu: "1"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+```
+
+전체 티어 참조표: [`config/resource-tiers/all-tiers-reference.yaml`](config/resource-tiers/all-tiers-reference.yaml)
+
 ## 문제 해결
 
 ### 에이전트가 GitLab에 연결되지 않는 경우

@@ -37,25 +37,38 @@ log_step "1. 에이전트 config.yaml 생성"
 
 RENDERED_CFG="/tmp/agent-config-rendered.yaml"
 
+# ── 리소스 계산기 실행 (CONCURRENT_USERS 기반 자동 산정) ───────
+CONCURRENT_USERS="${CONCURRENT_USERS:-100}"
+log_info "리소스 계산 기준 동시 사용자 수: ${CONCURRENT_USERS}명"
+source "${SCRIPT_DIR}/resource-calculator.sh" "${CONCURRENT_USERS}" 2>/dev/null || true
+
+# active-tier.yaml 로드 (계산기 출력)
+TIER_FILE="${ROOT_DIR}/config/resource-tiers/active-tier.yaml"
+
 # shared_namespace 설정
 if [[ "${WORKSPACES_SHARED_NAMESPACE:-false}" == "true" ]]; then
     SHARED_NS_VALUE="${WORKSPACES_PROXY_NAMESPACE}"
     SHARED_NS_BLOCK="  # GitLab 18.0+ 공유 네임스페이스 모드
-  shared_namespace: \"${SHARED_NS_VALUE}\""
-    MAX_RES_BLOCK="  max_resources_per_workspace: {}"
+  shared_namespace: \"${SHARED_NS_VALUE}\"
+  max_resources_per_workspace: {}"
 else
-    SHARED_NS_BLOCK="  # shared_namespace 미설정 = Workspace마다 별도 네임스페이스 생성 (기본값)
+    # 리소스 계산기 값 사용 (없으면 GitLab 18.9 기본값)
+    WS_CPU_REQ_M="${WS_CPU_REQ_M:-500}"
+    WS_CPU_MAX_M="${WS_CPU_MAX_M:-2000}"
+    WS_MEM_REQ_MI="${WS_MEM_REQ_MI:-512}"
+    WS_MEM_MAX_MI="${WS_MEM_MAX_MI:-4096}"
+    AGENT_WS_QUOTA="${AGENT_WS_QUOTA:-${CONCURRENT_USERS}}"
+    AGENT_WS_PER_USER_QUOTA="${AGENT_WS_PER_USER_QUOTA:-5}"
+
+    SHARED_NS_BLOCK="  # Workspace마다 별도 네임스페이스 생성 (기본값)
   # shared_namespace: \"\"   # GitLab 18.0+: 공유 네임스페이스 사용 시 설정"
-    MAX_RES_BLOCK="  # max_resources_per_workspace:
-  #   limits:
-  #     cpu: \"2\"
-  #     memory: \"2Gi\""
 fi
 
 cat > "${RENDERED_CFG}" <<EOF
 # ============================================================
 # GitLab Agent for Kubernetes 설정 파일
-# GitLab 18.9 / 생성일: $(date '+%Y-%m-%d %H:%M:%S')
+# GitLab 18.9 / 동시 사용자: ${CONCURRENT_USERS}명
+# 생성일: $(date '+%Y-%m-%d %H:%M:%S')
 # ============================================================
 
 # GitLab CI/CD 파이프라인에서 이 에이전트를 통해 클러스터 접근 허용
@@ -70,12 +83,33 @@ remote_development:
   enabled: true
 
   # Workspace URL에 사용될 DNS 영역
-  # 예: <workspace-id>.workspaces.example.com
   dns_zone: "${WORKSPACES_DOMAIN}"
 
 ${SHARED_NS_BLOCK}
 
-${MAX_RES_BLOCK}
+  # ── 리소스 쿼터 (동시 사용자 ${CONCURRENT_USERS}명 기준) ────────────
+  # 에이전트가 허용하는 최대 워크스페이스 수
+  workspaces_quota: ${AGENT_WS_QUOTA:-${CONCURRENT_USERS}}
+  # 사용자당 최대 워크스페이스 수
+  workspaces_per_user_quota: ${AGENT_WS_PER_USER_QUOTA:-5}
+
+  # ── Workspace 기본 리소스 (GitLab 18.9 공식 기본값) ─────────────
+  default_resources_per_workspace_container:
+    requests:
+      cpu: "${WS_CPU_REQ_M:-500}m"
+      memory: "${WS_MEM_REQ_MI:-512}Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+  # ── Workspace 최대 허용 리소스 (devfile 상한값) ──────────────
+  max_resources_per_workspace:
+    requests:
+      cpu: "1"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
 
   # 네트워크 정책 (선택사항)
   # network_policy_egress:

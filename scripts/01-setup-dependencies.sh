@@ -158,6 +158,17 @@ log_step "4. ingress-nginx 설치"
 
 INGRESS_NS="ingress-nginx"
 
+# ── 리소스 계산기로 ingress 리소스 산정 ───────────────────────
+CONCURRENT_USERS="${CONCURRENT_USERS:-100}"
+source "${SCRIPT_DIR}/resource-calculator.sh" "${CONCURRENT_USERS}" 2>/dev/null || true
+# 계산기 미실행 시 기본값
+INGRESS_REPLICAS="${INGRESS_REPLICAS:-2}"
+INGRESS_CPU_REQ_M="${INGRESS_CPU_REQ_M:-200}"
+INGRESS_CPU_LIM_M="${INGRESS_CPU_LIM_M:-1000}"
+INGRESS_MEM_REQ_MI="${INGRESS_MEM_REQ_MI:-256}"
+INGRESS_MEM_LIM_MI="${INGRESS_MEM_LIM_MI:-512}"
+log_info "ingress-nginx 리소스 (동시 사용자: ${CONCURRENT_USERS}명): replicas=${INGRESS_REPLICAS}, CPU=${INGRESS_CPU_REQ_M}m, Mem=${INGRESS_MEM_REQ_MI}Mi"
+
 if helm list -n "${INGRESS_NS}" 2>/dev/null | grep -q "ingress-nginx"; then
     log_warn "ingress-nginx 이미 설치됨 - 건너뜁니다"
     kubectl get pods -n "${INGRESS_NS}" 2>/dev/null || true
@@ -165,10 +176,10 @@ else
     log_info "ingress-nginx 네임스페이스 생성..."
     kubectl create namespace "${INGRESS_NS}" --dry-run=client -o yaml | kubectl apply -f -
 
-    log_info "ingress-nginx 설치 시작..."
+    log_info "ingress-nginx 설치 시작 (replicas: ${INGRESS_REPLICAS})..."
     helm install ingress-nginx ingress-nginx/ingress-nginx \
         --namespace "${INGRESS_NS}" \
-        --set controller.replicaCount=2 \
+        --set controller.replicaCount="${INGRESS_REPLICAS}" \
         --set controller.ingressClassResource.name="${INGRESS_CLASS:-nginx}" \
         --set controller.ingressClassResource.enabled=true \
         --set controller.ingressClassResource.default=true \
@@ -178,6 +189,10 @@ else
         --set controller.config.proxy-body-size="0" \
         --set controller.config.proxy-read-timeout="3600" \
         --set controller.config.proxy-send-timeout="3600" \
+        --set controller.resources.requests.cpu="${INGRESS_CPU_REQ_M}m" \
+        --set controller.resources.requests.memory="${INGRESS_MEM_REQ_MI}Mi" \
+        --set controller.resources.limits.cpu="${INGRESS_CPU_LIM_M}m" \
+        --set controller.resources.limits.memory="${INGRESS_MEM_LIM_MI}Mi" \
         --wait \
         --timeout 5m
 

@@ -33,6 +33,14 @@ PROXY_CHART_VER="${WORKSPACES_PROXY_CHART_VERSION:-0.1.25}"
 OAUTH_REDIRECT_URI="https://${WORKSPACES_PROXY_DOMAIN}/auth/callback"
 OAUTH_APP_NAME="GitLab Workspaces Proxy"
 
+# ── 리소스 계산기 실행 ─────────────────────────────────────────
+CONCURRENT_USERS="${CONCURRENT_USERS:-100}"
+log_info "리소스 계산 기준 동시 사용자 수: ${CONCURRENT_USERS}명"
+# 리소스 계산기에서 변수 로드 (setup_logging 덮어쓰기 방지)
+_ORIG_LOG="${LOG_FILE}"
+source "${SCRIPT_DIR}/resource-calculator.sh" "${CONCURRENT_USERS}" 2>/dev/null || true
+LOG_FILE="${_ORIG_LOG}"
+
 # ============================================================
 log_header "GitLab Workspaces Proxy 설치 (GitLab 18.9)"
 # ============================================================
@@ -199,17 +207,29 @@ certificate:
     group: "cert-manager.io"
 
 # ----------------------------------------
-# 리소스 설정
+# 리소스 설정 (동시 사용자 ${CONCURRENT_USERS}명 기준 자동 산정)
 # ----------------------------------------
 resources:
   requests:
-    cpu: "100m"
-    memory: "128Mi"
+    cpu: "${PROXY_CPU_REQ_M:-200}m"
+    memory: "${PROXY_MEM_REQ_MI:-256}Mi"
   limits:
-    cpu: "500m"
-    memory: "512Mi"
+    cpu: "${PROXY_CPU_LIM_M:-500}m"
+    memory: "${PROXY_MEM_LIM_MI:-512}Mi"
 
-replicaCount: 1
+replicaCount: ${PROXY_REPLICAS:-1}
+
+# ----------------------------------------
+# HPA 설정 (동시 사용자 250명 초과 시 자동 활성화)
+# ----------------------------------------
+$(if [[ ${CONCURRENT_USERS:-100} -gt 250 ]]; then
+    PROXY_MAX=$(( ${PROXY_REPLICAS:-2} * 2 ))
+    echo "autoscaling:"
+    echo "  enabled: true"
+    echo "  minReplicas: ${PROXY_REPLICAS:-2}"
+    echo "  maxReplicas: ${PROXY_MAX}"
+    echo "  targetCPUUtilizationPercentage: 70"
+fi)
 EOF
 
 log_info "Helm Values 내용 확인 (민감 정보 마스킹):"
