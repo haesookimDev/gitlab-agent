@@ -1,41 +1,46 @@
 # ============================================================
 # GitLab Agent for Kubernetes - 설정 파일
-# 저장 위치: GitLab 프로젝트 내 .gitlab/agents/<AGENT_NAME>/config.yaml
+# GitLab 18.9 기준
+# ============================================================
+# 저장 위치: GitLab 프로젝트 내
+#   .gitlab/agents/<AGENT_NAME>/config.yaml
 # ============================================================
 
 # ----------------------------------------
-# GitLab CI/CD 터널 설정 (선택사항)
+# GitLab CI/CD 터널 접근 설정 (선택)
 # ----------------------------------------
 ci_access:
   projects:
-    - id: your-group/your-project  # GitLab 프로젝트 경로로 변경
+    - id: your-group/your-project   # 실제 프로젝트 경로로 변경
 
 # ----------------------------------------
-# Kubernetes API 접근 설정 (선택사항)
-# ----------------------------------------
-# user_access:
-#   projects:
-#     - id: your-group/your-project
-
-# ----------------------------------------
-# GitLab Workspaces 설정 (필수)
+# Remote Development (Workspaces) 설정 - 필수
 # ----------------------------------------
 remote_development:
+  # Workspaces 기능 활성화
   enabled: true
 
-  # DNS 영역 설정 - Workspaces에서 사용할 도메인
-  # 예: workspace-xxx.workspaces.example.com
-  dns_zone: "workspaces.example.com"  # .env의 WORKSPACES_DOMAIN과 동일하게 설정
+  # Workspace URL에 사용될 DNS 영역
+  # 예: <workspace-id>.workspaces.example.com
+  dns_zone: "workspaces.example.com"   # .env의 WORKSPACES_DOMAIN과 동일
 
-  # GitLab URL (에이전트가 통신할 GitLab 인스턴스)
-  gitlab_url: "https://gitlab.example.com"  # .env의 GITLAB_URL과 동일하게 설정
+  # ── GitLab 18.0+ 신규 옵션 ──────────────────────────────
+  # 공유 네임스페이스 모드 (선택사항)
+  # - 설정하면: 모든 Workspace가 이 네임스페이스 하나를 공유
+  # - 미설정 시: Workspace마다 개별 네임스페이스 자동 생성 (기본값)
+  # - 주의: shared_namespace 설정 시 max_resources_per_workspace는 {} 로 설정
+  # shared_namespace: "gitlab-workspaces"
 
-  # Workspace 리소스 제한 설정
-  # workspace_proxy:
-  #   ingress:
-  #     host: "workspaces.example.com"
+  # Workspace당 최대 리소스 제한 (shared_namespace 미사용 시)
+  # max_resources_per_workspace:
+  #   limits:
+  #     cpu: "2"
+  #     memory: "2Gi"
+  #   requests:
+  #     cpu: "100m"
+  #     memory: "512Mi"
 
-  # Workspace 기본 리소스 설정
+  # 네트워크 정책 - Workspace의 외부 통신 허용 목록 (선택사항)
   # network_policy_egress:
   #   - ports:
   #     - port: 443

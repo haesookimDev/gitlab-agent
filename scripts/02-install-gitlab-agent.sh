@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # ============================================================
-# GitLab Workspaces - GitLab Agent for Kubernetes 설치 스크립트
+# GitLab Workspaces - GitLab Agent for Kubernetes 설치
+# 대상: GitLab 18.9
 # ============================================================
 # 수행 작업:
-#   1. GitLab에 Agent 등록 (API 사용)
-#   2. 에이전트 설정 파일을 GitLab 프로젝트에 커밋
-#   3. Helm을 사용하여 클러스터에 에이전트 설치
+#   1. GitLab API로 에이전트 등록
+#   2. 에이전트 토큰 생성
+#   3. 에이전트 config.yaml을 프로젝트 저장소에 업로드
+#   4. Helm으로 클러스터에 에이전트 설치
+#      (차트 버전을 GitLab 버전과 자동 매핑)
 # ============================================================
 set -euo pipefail
 
@@ -17,47 +20,86 @@ setup_logging
 
 ENV_FILE="${ROOT_DIR}/.env"
 if [[ ! -f "${ENV_FILE}" ]]; then
-    log_error ".env 파일이 없습니다."
-    exit 1
+    log_error ".env 파일이 없습니다."; exit 1
 fi
 source "${ENV_FILE}"
 
 CONFIG_DIR="${ROOT_DIR}/config"
+AGENT_NS="${GITLAB_AGENT_NAMESPACE}"
 
 # ============================================================
-log_header "GitLab Agent for Kubernetes 설치"
+log_header "GitLab Agent for Kubernetes 설치 (GitLab 18.9)"
 # ============================================================
 
 # ============================================================
-log_step "1. 에이전트 설정 파일 준비"
+log_step "1. 에이전트 config.yaml 생성"
 # ============================================================
 
-AGENT_CONFIG_TEMPLATE="${CONFIG_DIR}/agent-config.yaml"
-AGENT_CONFIG_RENDERED="/tmp/agent-config-rendered.yaml"
+RENDERED_CFG="/tmp/agent-config-rendered.yaml"
 
-log_info "에이전트 설정 파일 렌더링: ${AGENT_CONFIG_TEMPLATE}"
-sed \
-    -e "s|your-group/your-project|${GITLAB_PROJECT_PATH}|g" \
-    -e "s|workspaces.example.com|${WORKSPACES_DOMAIN}|g" \
-    -e "s|https://gitlab.example.com|${GITLAB_URL}|g" \
-    "${AGENT_CONFIG_TEMPLATE}" > "${AGENT_CONFIG_RENDERED}"
+# shared_namespace 설정
+if [[ "${WORKSPACES_SHARED_NAMESPACE:-false}" == "true" ]]; then
+    SHARED_NS_VALUE="${WORKSPACES_PROXY_NAMESPACE}"
+    SHARED_NS_BLOCK="  # GitLab 18.0+ 공유 네임스페이스 모드
+  shared_namespace: \"${SHARED_NS_VALUE}\""
+    MAX_RES_BLOCK="  max_resources_per_workspace: {}"
+else
+    SHARED_NS_BLOCK="  # shared_namespace 미설정 = Workspace마다 별도 네임스페이스 생성 (기본값)
+  # shared_namespace: \"\"   # GitLab 18.0+: 공유 네임스페이스 사용 시 설정"
+    MAX_RES_BLOCK="  # max_resources_per_workspace:
+  #   limits:
+  #     cpu: \"2\"
+  #     memory: \"2Gi\""
+fi
 
-log_info "렌더링된 에이전트 설정 내용:"
+cat > "${RENDERED_CFG}" <<EOF
+# ============================================================
+# GitLab Agent for Kubernetes 설정 파일
+# GitLab 18.9 / 생성일: $(date '+%Y-%m-%d %H:%M:%S')
+# ============================================================
+
+# GitLab CI/CD 파이프라인에서 이 에이전트를 통해 클러스터 접근 허용
+ci_access:
+  projects:
+    - id: ${GITLAB_PROJECT_PATH}
+
+# ============================================================
+# Remote Development (Workspaces) 설정 - 필수
+# ============================================================
+remote_development:
+  enabled: true
+
+  # Workspace URL에 사용될 DNS 영역
+  # 예: <workspace-id>.workspaces.example.com
+  dns_zone: "${WORKSPACES_DOMAIN}"
+
+${SHARED_NS_BLOCK}
+
+${MAX_RES_BLOCK}
+
+  # 네트워크 정책 (선택사항)
+  # network_policy_egress:
+  #   - ports:
+  #     - port: 443
+  #       protocol: TCP
+  #     - port: 80
+  #       protocol: TCP
+EOF
+
+log_info "생성된 에이전트 설정:"
 divider
-cat "${AGENT_CONFIG_RENDERED}"
+cat "${RENDERED_CFG}"
 divider
 
 # ============================================================
-log_step "2. GitLab 프로젝트에 Agent 등록"
+log_step "2. GitLab 프로젝트에 에이전트 등록"
 # ============================================================
 
-# 프로젝트 ID 조회
-log_info "GitLab 프로젝트 ID 조회: ${GITLAB_PROJECT_PATH}..."
-PROJECT_ENCODED=$(echo "${GITLAB_PROJECT_PATH}" | sed 's/\//%2F/g')
-PROJECT_INFO=$(curl -s \
-    "${GITLAB_URL}/api/v4/projects/${PROJECT_ENCODED}" \
+log_info "프로젝트 ID 조회: ${GITLAB_PROJECT_PATH}"
+PROJ_ENC=$(echo "${GITLAB_PROJECT_PATH}" | sed 's/\//%2F/g')
+PROJ_JSON=$(curl -s "${GITLAB_URL}/api/v4/projects/${PROJ_ENC}" \
     -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
-PROJECT_ID=$(echo "${PROJECT_INFO}" | jq -r '.id')
+PROJECT_ID=$(echo "${PROJ_JSON}" | jq -r '.id')
 
 if [[ -z "${PROJECT_ID}" || "${PROJECT_ID}" == "null" ]]; then
     log_error "프로젝트를 찾을 수 없습니다: ${GITLAB_PROJECT_PATH}"
@@ -65,29 +107,27 @@ if [[ -z "${PROJECT_ID}" || "${PROJECT_ID}" == "null" ]]; then
 fi
 log_success "프로젝트 ID: ${PROJECT_ID}"
 
-# 기존 에이전트 확인
-log_info "기존 등록된 에이전트 목록 조회..."
+log_info "기존 에이전트 목록..."
 EXISTING_AGENTS=$(curl -s \
     "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/cluster_agents" \
     -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
-log_info "기존 에이전트: $(echo "${EXISTING_AGENTS}" | jq -r '.[].name' 2>/dev/null | tr '\n' ', ' || echo '없음')"
+log_info "  등록된 에이전트: $(echo "${EXISTING_AGENTS}" | jq -r '.[].name' 2>/dev/null | tr '\n' ', ' || echo '없음')"
 
-AGENT_ID=$(echo "${EXISTING_AGENTS}" | jq -r ".[] | select(.name == \"${GITLAB_AGENT_NAME}\") | .id" 2>/dev/null || echo "")
+AGENT_ID=$(echo "${EXISTING_AGENTS}" | \
+    jq -r ".[] | select(.name == \"${GITLAB_AGENT_NAME}\") | .id" 2>/dev/null || echo "")
 
 if [[ -n "${AGENT_ID}" && "${AGENT_ID}" != "null" ]]; then
-    log_warn "에이전트 '${GITLAB_AGENT_NAME}'가 이미 등록되어 있습니다 (ID: ${AGENT_ID})"
-    log_info "기존 에이전트를 사용합니다."
+    log_warn "에이전트 '${GITLAB_AGENT_NAME}' 이미 등록됨 (ID: ${AGENT_ID}) - 기존 에이전트 재사용"
 else
-    log_info "에이전트 '${GITLAB_AGENT_NAME}' 등록..."
-    CREATE_RESPONSE=$(curl -s -X POST \
+    log_info "에이전트 '${GITLAB_AGENT_NAME}' 신규 등록..."
+    CREATE_RESP=$(curl -s -X POST \
         "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/cluster_agents" \
         -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
         -H "Content-Type: application/json" \
         -d "{\"name\": \"${GITLAB_AGENT_NAME}\"}")
-
-    AGENT_ID=$(echo "${CREATE_RESPONSE}" | jq -r '.id')
+    AGENT_ID=$(echo "${CREATE_RESP}" | jq -r '.id')
     if [[ -z "${AGENT_ID}" || "${AGENT_ID}" == "null" ]]; then
-        log_error "에이전트 등록 실패: $(echo "${CREATE_RESPONSE}" | jq -r '.message // .')"
+        log_error "에이전트 등록 실패: $(echo "${CREATE_RESP}" | jq -r '.message // .')"
         exit 1
     fi
     log_success "에이전트 등록 완료 (ID: ${AGENT_ID})"
@@ -97,136 +137,142 @@ fi
 log_step "3. 에이전트 토큰 생성"
 # ============================================================
 
-# 기존 토큰 확인
-log_info "에이전트 토큰 목록 조회..."
-EXISTING_TOKENS=$(curl -s \
-    "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/cluster_agents/${AGENT_ID}/tokens" \
-    -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
-TOKEN_COUNT=$(echo "${EXISTING_TOKENS}" | jq 'length' 2>/dev/null || echo "0")
-log_info "기존 토큰 수: ${TOKEN_COUNT}"
-
-# 새 토큰 생성 (항상 새로 생성 - 보안상)
-log_info "새 에이전트 토큰 생성..."
-TOKEN_RESPONSE=$(curl -s -X POST \
+TOKEN_NAME="k8s-workspaces-$(date +%Y%m%d%H%M%S)"
+log_info "에이전트 토큰 생성: ${TOKEN_NAME}"
+TOKEN_RESP=$(curl -s -X POST \
     "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/cluster_agents/${AGENT_ID}/tokens" \
     -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
     -H "Content-Type: application/json" \
-    -d "{\"name\": \"k8s-install-$(date +%Y%m%d%H%M%S)\"}")
+    -d "{\"name\": \"${TOKEN_NAME}\"}")
 
-AGENT_TOKEN=$(echo "${TOKEN_RESPONSE}" | jq -r '.token')
+AGENT_TOKEN=$(echo "${TOKEN_RESP}" | jq -r '.token')
 if [[ -z "${AGENT_TOKEN}" || "${AGENT_TOKEN}" == "null" ]]; then
-    log_error "에이전트 토큰 생성 실패: $(echo "${TOKEN_RESPONSE}" | jq -r '.message // .')"
+    log_error "토큰 생성 실패: $(echo "${TOKEN_RESP}" | jq -r '.message // .')"
     exit 1
 fi
-
 log_success "에이전트 토큰 생성 완료"
-log_warn "이 토큰은 다시 표시되지 않습니다. 안전한 곳에 보관하세요."
-
-# 토큰을 임시 파일에 저장 (프록시 설치 시 참조)
+# 토큰을 임시 파일에 저장 (chmod 600으로 보호)
 echo "${AGENT_TOKEN}" > /tmp/gitlab-agent-token
 chmod 600 /tmp/gitlab-agent-token
-log_info "토큰이 /tmp/gitlab-agent-token에 임시 저장되었습니다."
 
 # ============================================================
-log_step "4. GitLab 프로젝트에 에이전트 설정 파일 업로드"
+log_step "4. 에이전트 config.yaml을 저장소에 업로드"
 # ============================================================
 
-AGENT_CONFIG_PATH=".gitlab/agents/${GITLAB_AGENT_NAME}/config.yaml"
-AGENT_CONFIG_CONTENT=$(base64 -w 0 "${AGENT_CONFIG_RENDERED}")
+AGENT_CFG_REPO_PATH=".gitlab/agents/${GITLAB_AGENT_NAME}/config.yaml"
+CFG_PATH_ENC=$(echo "${AGENT_CFG_REPO_PATH}" | sed 's/\//%2F/g')
 
-log_info "에이전트 설정 파일 경로: ${AGENT_CONFIG_PATH}"
+log_info "저장소 기본 브랜치 확인..."
+DEFAULT_BRANCH=$(echo "${PROJ_JSON}" | jq -r '.default_branch // "main"')
+log_info "  기본 브랜치: ${DEFAULT_BRANCH}"
 
-# 파일 존재 여부 확인
+log_info "기존 config.yaml 존재 여부 확인..."
 EXISTING_FILE=$(curl -s \
-    "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/repository/files/$(echo "${AGENT_CONFIG_PATH}" | sed 's/\//%2F/g')?ref=main" \
-    -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" 2>/dev/null | jq -r '.file_name' 2>/dev/null || echo "")
+    "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/repository/files/${CFG_PATH_ENC}?ref=${DEFAULT_BRANCH}" \
+    -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" | jq -r '.file_name' 2>/dev/null || echo "")
+
+CFG_CONTENT=$(jq -Rs '.' "${RENDERED_CFG}")
 
 if [[ -n "${EXISTING_FILE}" && "${EXISTING_FILE}" != "null" ]]; then
-    log_info "기존 설정 파일 업데이트..."
-    UPDATE_RESPONSE=$(curl -s -X PUT \
-        "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/repository/files/$(echo "${AGENT_CONFIG_PATH}" | sed 's/\//%2F/g')" \
+    log_info "기존 config.yaml 업데이트..."
+    UPLOAD_RESP=$(curl -s -X PUT \
+        "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/repository/files/${CFG_PATH_ENC}" \
         -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
         -H "Content-Type: application/json" \
         -d "{
-            \"branch\": \"main\",
-            \"content\": $(jq -Rs '.' "${AGENT_CONFIG_RENDERED}"),
-            \"commit_message\": \"chore: update GitLab Agent config for Workspaces\"
+            \"branch\": \"${DEFAULT_BRANCH}\",
+            \"content\": ${CFG_CONTENT},
+            \"commit_message\": \"chore: update GitLab Agent config for Workspaces (GitLab 18.9)\"
         }")
-    log_success "설정 파일 업데이트 완료"
 else
-    log_info "새 설정 파일 생성..."
-
-    # 디렉토리 구조 생성이 필요할 수 있어 단계적으로 처리
-    CREATE_RESPONSE=$(curl -s -X POST \
-        "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/repository/files/$(echo "${AGENT_CONFIG_PATH}" | sed 's/\//%2F/g')" \
+    log_info "config.yaml 신규 생성..."
+    UPLOAD_RESP=$(curl -s -X POST \
+        "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/repository/files/${CFG_PATH_ENC}" \
         -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
         -H "Content-Type: application/json" \
         -d "{
-            \"branch\": \"main\",
-            \"content\": $(jq -Rs '.' "${AGENT_CONFIG_RENDERED}"),
-            \"commit_message\": \"feat: add GitLab Agent config for Workspaces\"
+            \"branch\": \"${DEFAULT_BRANCH}\",
+            \"content\": ${CFG_CONTENT},
+            \"commit_message\": \"feat: add GitLab Agent config with remote_development (GitLab 18.9)\"
         }")
+fi
 
-    if echo "${CREATE_RESPONSE}" | jq -e '.file_path' &>/dev/null; then
-        log_success "설정 파일 생성 완료: ${AGENT_CONFIG_PATH}"
-    else
-        log_warn "설정 파일 자동 생성 실패 - 수동으로 파일을 생성해주세요."
-        log_warn "  경로: ${AGENT_CONFIG_PATH}"
-        log_warn "  내용: ${AGENT_CONFIG_RENDERED}"
-        log_info "오류: $(echo "${CREATE_RESPONSE}" | jq -r '.message // .')"
-    fi
+if echo "${UPLOAD_RESP}" | jq -e '.file_path // .branch' &>/dev/null; then
+    log_success "config.yaml 업로드 완료: ${AGENT_CFG_REPO_PATH}"
+else
+    log_warn "config.yaml 자동 업로드 실패 (오류: $(echo "${UPLOAD_RESP}" | jq -r '.message // .'))"
+    log_warn "수동으로 파일을 생성하세요:"
+    log_warn "  경로: ${AGENT_CFG_REPO_PATH}"
+    log_warn "  내용: cat ${RENDERED_CFG}"
 fi
 
 # ============================================================
-log_step "5. Kubernetes에 GitLab Agent 설치 (Helm)"
+log_step "5. GitLab Agent Helm 설치"
 # ============================================================
 
-AGENT_NS="${GITLAB_AGENT_NAMESPACE}"
-GITLAB_AGENT_CHART_VERSION="${GITLAB_AGENT_CHART_VERSION:-2.4.0}"
-
-log_info "에이전트 네임스페이스 '${AGENT_NS}' 생성..."
+log_info "에이전트 네임스페이스 생성..."
 kubectl create namespace "${AGENT_NS}" --dry-run=client -o yaml | kubectl apply -f -
-log_success "네임스페이스 준비 완료"
 
-log_info "에이전트 토큰을 Kubernetes Secret으로 생성..."
+log_info "에이전트 토큰 Secret 생성..."
 kubectl create secret generic gitlab-agent-token \
     --namespace="${AGENT_NS}" \
     --from-literal=token="${AGENT_TOKEN}" \
     --dry-run=client -o yaml | kubectl apply -f -
-log_success "Secret 'gitlab-agent-token' 생성 완료"
 
 # KAS 주소 조회
-log_info "GitLab KAS 주소 조회..."
-KAS_INFO=$(curl -s \
-    "${GITLAB_URL}/api/v4/metadata" \
-    -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
-KAS_ADDRESS=$(echo "${KAS_INFO}" | jq -r '.kas.externalUrl' 2>/dev/null || echo "")
-
+log_info "KAS 주소 조회..."
+META_JSON=$(curl -s "${GITLAB_URL}/api/v4/metadata" -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
+KAS_ADDRESS=$(echo "${META_JSON}" | jq -r '.kas.externalUrl' 2>/dev/null || echo "")
+KAS_VERSION=$(echo "${META_JSON}" | jq -r '.kas.version' 2>/dev/null || echo "")
 if [[ -z "${KAS_ADDRESS}" || "${KAS_ADDRESS}" == "null" ]]; then
-    # GitLab.com 기본 KAS 주소
-    if echo "${GITLAB_URL}" | grep -q "gitlab.com"; then
-        KAS_ADDRESS="wss://kas.gitlab.com"
-    else
-        # 자체 호스팅의 경우 기본 주소 추측
-        GITLAB_HOST=$(echo "${GITLAB_URL}" | sed 's|https://||;s|http://||')
-        KAS_ADDRESS="wss://${GITLAB_HOST}/-/kubernetes-agent"
-        log_warn "KAS 주소를 자동 감지하지 못했습니다. 기본값 사용: ${KAS_ADDRESS}"
-    fi
+    GL_HOST=$(echo "${GITLAB_URL}" | sed 's|https://||;s|http://||')
+    KAS_ADDRESS="wss://${GL_HOST}/-/kubernetes-agent"
+    log_warn "KAS 주소 자동 감지 실패 → 기본값 사용: ${KAS_ADDRESS}"
 else
-    log_success "KAS 주소: ${KAS_ADDRESS}"
+    log_success "KAS 주소: ${KAS_ADDRESS} (버전: ${KAS_VERSION})"
 fi
 
-log_info "GitLab Agent Helm 설치 시작 (버전: ${GITLAB_AGENT_CHART_VERSION})..."
-log_info "  - Namespace: ${AGENT_NS}"
-log_info "  - KAS Address: ${KAS_ADDRESS}"
-log_info "  - Agent Name: ${GITLAB_AGENT_NAME}"
+# GitLab 버전에서 차트 버전 결정
+# GitLab 18.9 → 에이전트 차트 버전은 18.9.x 형태
+if [[ -z "${GITLAB_AGENT_CHART_VERSION:-}" ]]; then
+    GL_MINOR_VER=$(curl -s "${GITLAB_URL}/api/v4/version" \
+        -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" | \
+        jq -r '.version' 2>/dev/null | cut -d'.' -f1,2 || echo "")
+
+    if [[ -n "${GL_MINOR_VER}" ]]; then
+        # 사용 가능한 최신 호환 차트 버전 조회
+        AVAILABLE_VERSIONS=$(helm search repo gitlab/gitlab-agent -l \
+            --output json 2>/dev/null | \
+            jq -r '.[].version' | grep "^${GL_MINOR_VER}\." | head -1 || echo "")
+
+        if [[ -n "${AVAILABLE_VERSIONS}" ]]; then
+            GITLAB_AGENT_CHART_VERSION="${AVAILABLE_VERSIONS}"
+            log_success "GitLab ${GL_MINOR_VER}.x 호환 차트 버전 자동 선택: ${GITLAB_AGENT_CHART_VERSION}"
+        else
+            # GitLab 버전과 동일 버전 시도, 없으면 최신 버전
+            LATEST_VER=$(helm search repo gitlab/gitlab-agent --output json 2>/dev/null | \
+                jq -r '.[0].version' || echo "")
+            GITLAB_AGENT_CHART_VERSION="${LATEST_VER:-3.0.0}"
+            log_warn "호환 차트 자동 감지 실패 → 최신 버전 사용: ${GITLAB_AGENT_CHART_VERSION}"
+        fi
+    else
+        GITLAB_AGENT_CHART_VERSION="3.0.0"
+        log_warn "GitLab 버전 감지 실패 → 기본 차트 버전: ${GITLAB_AGENT_CHART_VERSION}"
+    fi
+fi
+
+log_info "에이전트 설치 정보:"
+log_info "  Namespace   : ${AGENT_NS}"
+log_info "  Chart 버전  : ${GITLAB_AGENT_CHART_VERSION}"
+log_info "  KAS 주소    : ${KAS_ADDRESS}"
+log_info "  Agent 이름  : ${GITLAB_AGENT_NAME}"
 
 if helm list -n "${AGENT_NS}" 2>/dev/null | grep -q "gitlab-agent"; then
-    log_info "기존 gitlab-agent Helm 릴리즈 발견 - 업그레이드 진행..."
     HELM_ACTION="upgrade"
+    log_info "기존 릴리즈 발견 → upgrade"
 else
-    log_info "신규 gitlab-agent Helm 설치 진행..."
     HELM_ACTION="install"
+    log_info "신규 설치 → install"
 fi
 
 helm "${HELM_ACTION}" gitlab-agent gitlab/gitlab-agent \
@@ -236,42 +282,44 @@ helm "${HELM_ACTION}" gitlab-agent gitlab/gitlab-agent \
     --set config.kasAddress="${KAS_ADDRESS}" \
     --set rbac.create=true \
     --set serviceAccount.create=true \
-    --set rbac.useExistingRole=false \
     --set config.observabilityPort=8888 \
     --wait \
     --timeout 5m \
-    --debug 2>&1 | grep -E "STATUS|NOTES|deployed|error|Warning|NAME:" || true
+    2>&1 | grep -E "STATUS|NOTES|deployed|Error|Warning|NAME:|LAST DEPLOYED" || true
 
-log_info "GitLab Agent 파드 상태 확인..."
+log_info "에이전트 Rollout 확인..."
 kubectl rollout status deployment/gitlab-agent -n "${AGENT_NS}" --timeout=3m
 
 echo ""
-log_info "설치된 에이전트 파드:"
+log_info "에이전트 파드 상태:"
 kubectl get pods -n "${AGENT_NS}" -o wide
+
 echo ""
-log_info "에이전트 로그 (최근 20줄):"
-kubectl logs -n "${AGENT_NS}" -l app=gitlab-agent --tail=20 2>/dev/null || true
+log_info "에이전트 초기 로그 (최근 30줄):"
+divider
+sleep 5
+kubectl logs -n "${AGENT_NS}" -l app=gitlab-agent --tail=30 2>/dev/null || true
+divider
 
 # ============================================================
 log_step "6. GitLab에서 에이전트 연결 확인"
 # ============================================================
 
-log_info "GitLab에서 에이전트 연결 상태 확인..."
-sleep 15  # 에이전트가 KAS에 연결할 시간 대기
+log_info "KAS 연결 대기 (20초)..."
+sleep 20
 
-CONNECTION_STATUS=$(curl -s \
+AGENT_INFO=$(curl -s \
     "${GITLAB_URL}/api/v4/projects/${PROJECT_ID}/cluster_agents/${AGENT_ID}" \
     -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}")
-
-AGENT_STATUS=$(echo "${CONNECTION_STATUS}" | jq -r '.connected // false' 2>/dev/null || echo "unknown")
-log_info "에이전트 연결 상태: ${AGENT_STATUS}"
+log_info "에이전트 정보:"
+echo "${AGENT_INFO}" | jq '{id: .id, name: .name, created_at: .created_at}' 2>/dev/null || true
 
 # ============================================================
 log_step "완료"
 # ============================================================
 log_success "GitLab Agent 설치 완료!"
-log_info ""
-log_info "GitLab에서 에이전트 확인:"
+echo ""
+log_info "GitLab 에이전트 확인:"
 log_info "  ${GITLAB_URL}/${GITLAB_PROJECT_PATH}/-/clusters/agents"
 log_info ""
-log_info "다음 단계: bash ${SCRIPT_DIR}/03-install-workspaces-proxy.sh"
+log_info "  다음: bash ${SCRIPT_DIR}/03-install-workspaces-proxy.sh"
