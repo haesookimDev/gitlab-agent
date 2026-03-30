@@ -1,0 +1,75 @@
+# ============================================================
+# GitLab Workspaces Proxy - Helm Values
+# GitLab 18.9 / gitlab-workspaces-proxy 0.1.25+
+# ============================================================
+# 설치 스크립트(03-install-workspaces-proxy.sh)에서
+# 플레이스홀더를 자동으로 치환하여 사용합니다.
+# ============================================================
+
+# ----------------------------------------
+# 인증 설정
+# GitLab 18.x OAuth 콜백 경로: /auth/callback
+# (이전 버전의 /oauth/callback 에서 변경됨)
+# ----------------------------------------
+auth:
+  # GitLab 인스턴스 URL
+  host: "https://gitlab.example.com"
+  # GitLab OAuth Application Client ID
+  client_id: "__OAUTH_CLIENT_ID__"
+  # GitLab OAuth Application Client Secret
+  client_secret: "__OAUTH_CLIENT_SECRET__"
+  # 세션 서명 키 (openssl rand -hex 32로 생성)
+  signing_key: "__SIGNING_KEY__"
+  # OAuth 콜백 URL
+  # 반드시 GitLab OAuth Application의 Redirect URI와 일치해야 함
+  redirect_uri: "https://auth.workspaces.example.com/auth/callback"
+
+# ----------------------------------------
+# 도메인 설정
+# ----------------------------------------
+hosts:
+  # Workspaces 와일드카드 도메인
+  domain: "workspaces.example.com"
+
+# ----------------------------------------
+# Ingress 설정
+# ----------------------------------------
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    # WebSocket 지원 (Workspace IDE 연결에 필수)
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+  tls:
+    enabled: true
+    secretName: "gitlab-workspaces-proxy-tls"
+
+# ----------------------------------------
+# cert-manager TLS 인증서 자동 발급
+# ----------------------------------------
+certificate:
+  create: true
+  issuerRef:
+    name: "letsencrypt-prod"
+    kind: "ClusterIssuer"
+    group: "cert-manager.io"
+
+# ----------------------------------------
+# 리소스 설정
+# ----------------------------------------
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+replicaCount: 1

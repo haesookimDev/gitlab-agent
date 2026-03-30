@@ -1,0 +1,675 @@
+# ============================================================
+# GitLab Workspaces - 전체 리소스 티어 참조표
+# GitLab 18.9 / 최대 5,000 동시 사용자 기준
+# ============================================================
+#
+# 티어 결정 기준:
+#   XS  : 동시 사용자  ~50명   (소규모 팀)
+#   S   : 동시 사용자  ~100명  (중소 팀)
+#   M   : 동시 사용자  ~250명  (중간 규모)
+#   L   : 동시 사용자  ~500명  (대규모 팀)
+#   XL  : 동시 사용자 ~1,000명 (엔터프라이즈 소)
+#   2XL : 동시 사용자 ~2,500명 (엔터프라이즈 중)
+#   3XL : 동시 사용자 ~5,000명 (엔터프라이즈 대)
+#
+# GitLab 18.9 공식 기준값:
+#   Workspace 기본 req : CPU 500m  / Memory 512Mi
+#   Workspace 기본 lim : CPU 1core / Memory 1Gi
+#   Workspace 최대 lim : CPU 2core / Memory 4Gi  (max_resources_per_workspace)
+#   Storage per WS     : 10 GiB (PVC)
+#   nginx WebSocket    : ~50K concurrent / 1 replica (< 1GB / < 1 core)
+# ============================================================
+
+# ── 계산 공식 ─────────────────────────────────────────────
+# WS 노드당 수용량 = min(사용가능CPU / 500m, 사용가능Mem / 512Mi)
+# 필요 노드 수     = ceil(동시사용자 × 1.2 / 노드당 수용량)
+# 에이전트 replica = ceil(동시사용자 / 1,000)  (최소 1)
+# Proxy replica   = ceil(동시사용자 / 600)    (최소 1)
+# Ingress replica = ceil(동시사용자 / 1,000)  (최소 2, 고가용성)
+# ──────────────────────────────────────────────────────────
+
+tiers:
+
+  # ============================================================
+  # Tier XS: 동시 사용자 50명
+  # ============================================================
+  xs:
+    concurrent_users: 50
+    total_users_max: 500        # 전체 등록 가능 사용자 (동시 10% 기준)
+    tier_label: "XS"
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"      # 기본 limit
+        cpu_max: "2000m"        # 최대 허용 limit
+        memory_request: "512Mi"
+        memory_limit: "1Gi"     # 기본 limit
+        memory_max: "4Gi"       # 최대 허용 limit
+        storage: "10Gi"
+      totals:
+        cpu_request: "25 cores"
+        cpu_limit_max: "100 cores"
+        memory_request: "25 GiB"
+        memory_limit_max: "200 GiB"
+        storage: "500 GiB"
+      quotas:
+        workspaces_quota: 50
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 1
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "500m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "200m"
+        memory_request: "256Mi"
+      hpa: false
+
+    workspaces_proxy:
+      replicas: 1
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "500m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "200m"
+        memory_request: "256Mi"
+      hpa: false
+
+    ingress_nginx:
+      replicas: 2               # 최소 2 (고가용성)
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "1000m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "400m"
+        memory_request: "512Mi"
+      hpa: false
+
+    cert_manager:               # 정적 (전 티어 동일)
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "8 vCPU / 32 GiB"
+        count: 5                # ceil(50 × 1.2 / 14) = 5
+        max_workspaces_per_node: 14  # CPU 병목: 7000m/500m
+        autoscale_max: 10
+        bottleneck: "CPU"
+      infrastructure_nodes:
+        type: "4 vCPU / 16 GiB"
+        count: 2
+      total_nodes: 7
+
+    grand_total:
+      cpu_request: "~26 cores"
+      cpu_limit_max: "~103 cores"
+      memory_request: "~26 GiB"
+      memory_limit_max: "~201 GiB"
+      storage: "500 GiB"
+
+  # ============================================================
+  # Tier S: 동시 사용자 100명
+  # ============================================================
+  s:
+    concurrent_users: 100
+    total_users_max: 1000
+    tier_label: "S"
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        cpu_max: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+        memory_max: "4Gi"
+        storage: "10Gi"
+      totals:
+        cpu_request: "50 cores"
+        cpu_limit_max: "200 cores"
+        memory_request: "50 GiB"
+        memory_limit_max: "400 GiB"
+        storage: "1 TiB"
+      quotas:
+        workspaces_quota: 100
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 1
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "500m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "200m"
+        memory_request: "256Mi"
+      hpa: false
+
+    workspaces_proxy:
+      replicas: 1
+      per_replica:
+        cpu_request: "300m"
+        cpu_limit: "500m"
+        memory_request: "384Mi"
+        memory_limit: "768Mi"
+      total:
+        cpu_request: "300m"
+        memory_request: "384Mi"
+      hpa: false
+
+    ingress_nginx:
+      replicas: 2
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "1000m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "400m"
+        memory_request: "512Mi"
+      hpa: false
+
+    cert_manager:
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "8 vCPU / 32 GiB"
+        count: 9                # ceil(100 × 1.2 / 14) = 9
+        max_workspaces_per_node: 14
+        autoscale_max: 18
+        bottleneck: "CPU"
+      infrastructure_nodes:
+        type: "4 vCPU / 16 GiB"
+        count: 2
+      total_nodes: 11
+
+    grand_total:
+      cpu_request: "~51 cores"
+      cpu_limit_max: "~202 cores"
+      memory_request: "~51 GiB"
+      memory_limit_max: "~401 GiB"
+      storage: "1 TiB"
+
+  # ============================================================
+  # Tier M: 동시 사용자 250명
+  # ============================================================
+  m:
+    concurrent_users: 250
+    total_users_max: 2500
+    tier_label: "M"
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        cpu_max: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+        memory_max: "4Gi"
+        storage: "10Gi"
+      totals:
+        cpu_request: "125 cores"
+        cpu_limit_max: "500 cores"
+        memory_request: "125 GiB"
+        memory_limit_max: "1000 GiB"
+        storage: "2.44 TiB"
+      quotas:
+        workspaces_quota: 250
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 1
+      per_replica:
+        cpu_request: "500m"
+        cpu_limit: "1500m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "500m"
+        memory_request: "512Mi"
+      hpa: false
+
+    workspaces_proxy:
+      replicas: 2
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "500m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "400m"
+        memory_request: "512Mi"
+      hpa: false
+
+    ingress_nginx:
+      replicas: 2
+      per_replica:
+        cpu_request: "200m"
+        cpu_limit: "1000m"
+        memory_request: "256Mi"
+        memory_limit: "512Mi"
+      total:
+        cpu_request: "400m"
+        memory_request: "512Mi"
+      hpa: false
+
+    cert_manager:
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "16 vCPU / 64 GiB"
+        count: 11               # ceil(250 × 1.2 / 28) = 11
+        max_workspaces_per_node: 28  # CPU 병목: 14000m/500m
+        autoscale_max: 22
+        bottleneck: "CPU"
+      infrastructure_nodes:
+        type: "4 vCPU / 16 GiB"
+        count: 3
+      total_nodes: 14
+
+    grand_total:
+      cpu_request: "~127 cores"
+      cpu_limit_max: "~502 cores"
+      memory_request: "~126 GiB"
+      memory_limit_max: "~1001 GiB"
+      storage: "2.44 TiB"
+
+  # ============================================================
+  # Tier L: 동시 사용자 500명
+  # ============================================================
+  l:
+    concurrent_users: 500
+    total_users_max: 5000
+    tier_label: "L"
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        cpu_max: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+        memory_max: "4Gi"
+        storage: "10Gi"
+      totals:
+        cpu_request: "250 cores"
+        cpu_limit_max: "1000 cores"
+        memory_request: "250 GiB"
+        memory_limit_max: "2 TiB"
+        storage: "4.88 TiB"
+      quotas:
+        workspaces_quota: 500
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 1
+      per_replica:
+        cpu_request: "500m"
+        cpu_limit: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "500m"
+        memory_request: "512Mi"
+      hpa: false
+
+    workspaces_proxy:
+      replicas: 2
+      per_replica:
+        cpu_request: "300m"
+        cpu_limit: "1000m"
+        memory_request: "384Mi"
+        memory_limit: "768Mi"
+      total:
+        cpu_request: "600m"
+        memory_request: "768Mi"
+      hpa: true
+      hpa_max_replicas: 4
+
+    ingress_nginx:
+      replicas: 2
+      per_replica:
+        cpu_request: "300m"
+        cpu_limit: "1000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "600m"
+        memory_request: "1 GiB"
+      hpa: true
+      hpa_max_replicas: 4
+
+    cert_manager:
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "16 vCPU / 64 GiB"
+        count: 22               # ceil(500 × 1.2 / 28) = 22
+        max_workspaces_per_node: 28
+        autoscale_max: 44
+        bottleneck: "CPU"
+      infrastructure_nodes:
+        type: "4 vCPU / 16 GiB"
+        count: 3
+      total_nodes: 25
+
+    grand_total:
+      cpu_request: "~252 cores"
+      cpu_limit_max: "~1004 cores"
+      memory_request: "~252 GiB"
+      memory_limit_max: "~2 TiB"
+      storage: "4.88 TiB"
+
+  # ============================================================
+  # Tier XL: 동시 사용자 1,000명
+  # ============================================================
+  xl:
+    concurrent_users: 1000
+    total_users_max: 10000
+    tier_label: "XL"
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        cpu_max: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+        memory_max: "4Gi"
+        storage: "10Gi"
+      totals:
+        cpu_request: "500 cores"
+        cpu_limit_max: "2000 cores"
+        memory_request: "500 GiB"
+        memory_limit_max: "4 TiB"
+        storage: "9.77 TiB"
+      quotas:
+        workspaces_quota: 1000
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 2
+      per_replica:
+        cpu_request: "300m"
+        cpu_limit: "1000m"
+        memory_request: "384Mi"
+        memory_limit: "768Mi"
+      total:
+        cpu_request: "600m"
+        memory_request: "768Mi"
+      hpa: true
+      hpa_max_replicas: 4
+
+    workspaces_proxy:
+      replicas: 3
+      per_replica:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "1500m"
+        memory_request: "1.5 GiB"
+      hpa: true
+      hpa_max_replicas: 6
+
+    ingress_nginx:
+      replicas: 3
+      per_replica:
+        cpu_request: "400m"
+        cpu_limit: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "1200m"
+        memory_request: "1.5 GiB"
+      hpa: true
+      hpa_max_replicas: 6
+
+    cert_manager:
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "32 vCPU / 128 GiB"
+        count: 21               # ceil(1000 × 1.2 / 58) = 21
+        max_workspaces_per_node: 58  # CPU 병목: 29000m/500m
+        autoscale_max: 42
+        bottleneck: "CPU"
+      infrastructure_nodes:
+        type: "8 vCPU / 32 GiB"
+        count: 4
+      total_nodes: 25
+
+    grand_total:
+      cpu_request: "~504 cores"
+      cpu_limit_max: "~2003 cores"
+      memory_request: "~504 GiB"
+      memory_limit_max: "~4 TiB"
+      storage: "9.77 TiB"
+
+  # ============================================================
+  # Tier 2XL: 동시 사용자 2,500명
+  # ============================================================
+  2xl:
+    concurrent_users: 2500
+    total_users_max: 25000
+    tier_label: "2XL"
+    notes: "멀티 클러스터 구성 권장 (클러스터당 1,000~1,500 Workspace)"
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        cpu_max: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+        memory_max: "4Gi"
+        storage: "10Gi"
+      totals:
+        cpu_request: "1250 cores"
+        cpu_limit_max: "5000 cores"
+        memory_request: "1.22 TiB"
+        memory_limit_max: "9.77 TiB"
+        storage: "24.41 TiB"
+      quotas:
+        workspaces_quota: 2500
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 3
+      per_replica:
+        cpu_request: "500m"
+        cpu_limit: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "1500m"
+        memory_request: "1.5 GiB"
+      hpa: true
+      hpa_max_replicas: 6
+
+    workspaces_proxy:
+      replicas: 5
+      per_replica:
+        cpu_request: "600m"
+        cpu_limit: "2000m"
+        memory_request: "768Mi"
+        memory_limit: "1536Mi"
+      total:
+        cpu_request: "3000m"
+        memory_request: "3.75 GiB"
+      hpa: true
+      hpa_max_replicas: 10
+
+    ingress_nginx:
+      replicas: 4
+      per_replica:
+        cpu_request: "500m"
+        cpu_limit: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      total:
+        cpu_request: "2000m"
+        memory_request: "2 GiB"
+      hpa: true
+      hpa_max_replicas: 8
+
+    cert_manager:
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "32 vCPU / 128 GiB"
+        count: 52               # ceil(2500 × 1.2 / 58) = 52
+        max_workspaces_per_node: 58
+        autoscale_max: 104
+        bottleneck: "CPU"
+        recommendation: "클러스터당 최대 2,500 Workspace, 부하 분산 고려"
+      infrastructure_nodes:
+        type: "8 vCPU / 32 GiB"
+        count: 5
+      total_nodes: 57
+
+    grand_total:
+      cpu_request: "~1257 cores"
+      cpu_limit_max: "~5006 cores"
+      memory_request: "~1.24 TiB"
+      memory_limit_max: "~9.78 TiB"
+      storage: "24.41 TiB"
+
+  # ============================================================
+  # Tier 3XL: 동시 사용자 5,000명 (최대)
+  # ============================================================
+  3xl:
+    concurrent_users: 5000
+    total_users_max: 50000
+    tier_label: "3XL"
+    notes: |
+      - 멀티 클러스터 필수 권장 (클러스터당 1,000~1,500 Workspace, 3~5개 클러스터)
+      - 각 클러스터에 별도 GitLab Agent 등록
+      - 글로벌 로드밸런서로 클러스터 간 트래픽 분산
+      - GitLab 에이전트 workspaces_quota로 클러스터별 한도 설정
+
+    workspace:
+      per_workspace:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        cpu_max: "2000m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+        memory_max: "4Gi"
+        storage: "10Gi"
+      totals:
+        cpu_request: "2500 cores"
+        cpu_limit_max: "10000 cores"
+        memory_request: "2.44 TiB"
+        memory_limit_max: "19.53 TiB"
+        storage: "48.83 TiB"
+      quotas:
+        workspaces_quota: 5000
+        workspaces_per_user_quota: 5
+
+    gitlab_agent:
+      replicas: 5
+      per_replica:
+        cpu_request: "1000m"
+        cpu_limit: "4000m"
+        memory_request: "1Gi"
+        memory_limit: "2Gi"
+      total:
+        cpu_request: "5000m"
+        memory_request: "5 GiB"
+      hpa: true
+      hpa_max_replicas: 10
+
+    workspaces_proxy:
+      replicas: 8
+      per_replica:
+        cpu_request: "800m"
+        cpu_limit: "2000m"
+        memory_request: "1Gi"
+        memory_limit: "2Gi"
+      total:
+        cpu_request: "6400m"
+        memory_request: "8 GiB"
+      hpa: true
+      hpa_max_replicas: 16
+
+    ingress_nginx:
+      replicas: 6
+      per_replica:
+        cpu_request: "600m"
+        cpu_limit: "2000m"
+        memory_request: "1Gi"
+        memory_limit: "2Gi"
+      total:
+        cpu_request: "3600m"
+        memory_request: "6 GiB"
+      hpa: true
+      hpa_max_replicas: 12
+
+    cert_manager:
+      total:
+        cpu_request: "300m"
+        memory_request: "320Mi"
+
+    cluster:
+      workspace_nodes:
+        type: "32 vCPU / 128 GiB"
+        count: 104              # ceil(5000 × 1.2 / 58) = 104
+        max_workspaces_per_node: 58
+        autoscale_max: 208
+        bottleneck: "CPU"
+        recommendation: |
+          단일 클러스터는 관리 복잡도가 매우 높아집니다.
+          3~5개 클러스터로 분산 구성을 강력히 권장합니다.
+          예: 클러스터 A 1,500WS + B 1,500WS + C 2,000WS
+      infrastructure_nodes:
+        type: "8 vCPU / 32 GiB"
+        count: 6
+      total_nodes: 110
+
+    grand_total:
+      cpu_request: "~2515 cores"
+      cpu_limit_max: "~10011 cores"
+      memory_request: "~2.46 TiB"
+      memory_limit_max: "~19.54 TiB"
+      storage: "48.83 TiB"
+
+# ============================================================
+# 티어별 빠른 비교 요약
+# ============================================================
+summary_table:
+  # 티어 | 동시사용자 | WS CPU Req | WS Mem Req | Storage | WS 노드수 | 전체 노드
+  xs:   { concurrent: 50,    ws_cpu_req: "25c",    ws_mem_req: "25 GiB",    storage: "500 GiB",   ws_nodes: 5,   total_nodes: 7   }
+  s:    { concurrent: 100,   ws_cpu_req: "50c",    ws_mem_req: "50 GiB",    storage: "1 TiB",     ws_nodes: 9,   total_nodes: 11  }
+  m:    { concurrent: 250,   ws_cpu_req: "125c",   ws_mem_req: "125 GiB",   storage: "2.44 TiB",  ws_nodes: 11,  total_nodes: 14  }
+  l:    { concurrent: 500,   ws_cpu_req: "250c",   ws_mem_req: "250 GiB",   storage: "4.88 TiB",  ws_nodes: 22,  total_nodes: 25  }
+  xl:   { concurrent: 1000,  ws_cpu_req: "500c",   ws_mem_req: "500 GiB",   storage: "9.77 TiB",  ws_nodes: 21,  total_nodes: 25  }
+  2xl:  { concurrent: 2500,  ws_cpu_req: "1250c",  ws_mem_req: "1.22 TiB",  storage: "24.41 TiB", ws_nodes: 52,  total_nodes: 57  }
+  3xl:  { concurrent: 5000,  ws_cpu_req: "2500c",  ws_mem_req: "2.44 TiB",  storage: "48.83 TiB", ws_nodes: 104, total_nodes: 110 }
