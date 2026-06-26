@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gitlab-webide-extension-host
+  namespace: <namespace>            # GitLab 설치 네임스페이스 (예: gitlab)
+  labels:
+    app.kubernetes.io/part-of: gitlab
+    app.kubernetes.io/component: webide-extension-host
+  annotations:
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "*.gitlab.example.com"
+      secretName: gitlab-wildcard-tls       # 기존 와일드카드 TLS Secret 재사용
+  rules:
+    - host: "*.gitlab.example.com"
+      http:
+        paths:
+          - path: /assets
+            pathType: Prefix
+            backend:
+              service:
+                name: gitlab-webservice-default   # <RELEASE>-webservice-default
+                port:
+                  number: 8181                    # Workhorse
