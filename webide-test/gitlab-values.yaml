@@ -1,0 +1,47 @@
+# Minimal local GitLab values for kind, targeting Web IDE extension-host testing.
+global:
+  edition: ce
+  hosts:
+    domain: localtest.me
+    https: true
+    gitlab:
+      name: gitlab.localtest.me
+  ingress:
+    configureCertmanager: false   # we provide our own TLS secret
+    class: nginx                   # use the externally-installed ingress-nginx
+    tls:
+      enabled: true
+      secretName: gitlab-wildcard-tls
+  # keep object storage on bundled minio (default)
+  kas:
+    enabled: false
+  appConfig:
+    defaultProjectsFeatures:
+      builds: false
+
+# Use the externally pre-installed ingress-nginx (kind variant) instead of the
+# bundled controller, which would be a LoadBalancer with no external IP on kind.
+nginx-ingress:
+  enabled: false
+
+# Disable heavy / unneeded components for a local Web IDE test.
+installCertmanager: false
+certmanager-issuer:
+  email: admin@localtest.me   # required by chart even when cert-manager is off
+prometheus:
+  install: false
+gitlab-runner:
+  install: false
+registry:
+  enabled: false
+
+gitlab:
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+  sidekiq:
+    minReplicas: 1
+    maxReplicas: 1
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 1

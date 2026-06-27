@@ -1,0 +1,43 @@
+# Web IDE extension-host wildcard ingress.
+# Serves VS Code static assets from the same GitLab instance (Workhorse) under a
+# separate wildcard origin, so the browser stops depending on the external CDN
+# (*.cdn.web-ide.gitlab-static.net).
+#
+# Admin setting to pair with this:
+#   Admin -> Settings -> General -> Web IDE -> Extension host domain
+#     => webide.localtest.me
+#
+# Release: gitlab   Namespace: gitlab   Backend: <release>-webservice-default:8181 (Workhorse)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gitlab-webide-extension-host
+  namespace: gitlab
+  labels:
+    app.kubernetes.io/part-of: gitlab
+    app.kubernetes.io/component: webide-extension-host
+    # Associate with the Helm release for clean cleanup with the bundle.
+    app.kubernetes.io/instance: gitlab
+  annotations:
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "*.webide.localtest.me"
+      secretName: gitlab-wildcard-tls       # reuse the wildcard TLS secret
+  rules:
+    - host: "*.webide.localtest.me"
+      http:
+        paths:
+          - path: /assets
+            pathType: Prefix
+            backend:
+              service:
+                name: gitlab-webservice-default
+                port:
+                  number: 8181              # Workhorse
