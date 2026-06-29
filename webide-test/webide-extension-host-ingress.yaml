@@ -5,8 +5,10 @@
 #
 # Admin setting to pair with this:
 #   Admin -> Settings -> General -> Web IDE -> Extension host domain
-#     => webide.localtest.me
+#     => gitlab.localhost.me
 #
+# TLS: wildcard cert *.gitlab.localhost.me signed by the local 50yr rootCA
+#      (see tls-openssl/gen-certs.sh), stored in secret `webide-exthost-tls`.
 # Release: gitlab   Namespace: gitlab   Backend: <release>-webservice-default:8181 (Workhorse)
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -28,10 +30,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - "*.webide.localtest.me"
-      secretName: gitlab-wildcard-tls       # reuse the wildcard TLS secret
+        - "*.gitlab.localhost.me"
+      secretName: webide-exthost-tls        # CA-signed wildcard for the extension host
   rules:
-    - host: "*.webide.localtest.me"
+    - host: "*.gitlab.localhost.me"
       http:
         paths:
           - path: /assets

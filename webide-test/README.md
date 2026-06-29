@@ -94,4 +94,6 @@ curl -ksS -o /dev/null -w "%{http_code} %{size_download}\n" "https://abc123.webi
 ```bash
 kind delete cluster --name gitlab-webide
 mkcert -uninstall   # 로컬 CA 신뢰 제거(선택)
+kubectl -n gitlab get secret gitlab-gitlab-initial-root-password -o jsonpath='{.data.password}' | base64 -d; echo
+
 ```
