@@ -20,3 +20,10 @@ docker run -d --name gitlab-aigw \
   -e DUO_WORKFLOW_SELF_SIGNED_JWT__VALIDATION_KEY="$(cat duo_workflow_validation.key)" \
   \
   ${AIGW_IMAGE}
+
+
+
+openssl genrsa -out aigw_signing.key 2048
+openssl genrsa -out aigw_validation.key 2048
+openssl genrsa -out duo_workflow_jwt.key 2048
+openssl genrsa -out duo_workflow_validation.key 2048
