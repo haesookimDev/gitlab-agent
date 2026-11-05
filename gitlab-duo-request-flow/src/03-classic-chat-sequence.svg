@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 784" role="img" aria-label="Classic Chat은 Sidekiq이 루프를 돌리고 AI Gateway가 LLM을 호출합니다" width="760" height="784" xmlns="http://www.w3.org/2000/svg">
+<title>Classic Chat은 Sidekiq이 루프를 돌리고 AI Gateway가 LLM을 호출합니다</title>
+<rect id="background" width="760" height="784" fill="#FFFFFF"/>
+<g id="diagram">
+<g id="key">
+<path d="M24 20H48" fill="none" stroke="#1BAF7A" stroke-width="1.25"/>
+<polygon points="48.75,20 41.25,23.75 41.25,16.25" fill="#1BAF7A" stroke="none"/>
+<text x="56" y="24" font-size="11.5" fill="#52514E" id="t-key-llm" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API 구간</text>
+<path d="M150 20H174" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="174.75,20 167.25,23.75 167.25,16.25" fill="#52514E" stroke="none"/>
+<text x="182" y="24" font-size="11.5" fill="#52514E" id="t-key-reply" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">응답</text>
+<circle cx="232" cy="20" r="4" fill="#52514E"/>
+<text x="242" y="24" font-size="11.5" fill="#52514E" id="t-key-internal" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">내부 처리</text>
+</g>
+<g id="lifelines">
+<line x1="76" y1="72" x2="76" y2="768" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="224" y1="72" x2="224" y2="768" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="344" y1="72" x2="344" y2="768" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="500" y1="72" x2="500" y2="768" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="684" y1="72" x2="684" y2="768" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+</g>
+<g id="lane-ui">
+<rect x="28" y="36" width="96" height="36" rx="8" fill="none" fill-opacity="1" stroke="#52514E" stroke-width="1.25"/>
+<text x="76" y="59" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-ui-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">브라우저·IDE</text>
+</g>
+<g id="lane-puma">
+<rect x="176" y="36" width="96" height="36" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="224" y="59" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-puma-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Puma</text>
+</g>
+<g id="lane-sidekiq">
+<rect x="296" y="36" width="96" height="36" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="344" y="59" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-sidekiq-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Sidekiq</text>
+</g>
+<g id="lane-aigw">
+<rect x="452" y="36" width="96" height="36" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="500" y="59" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-aigw-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">AI Gateway</text>
+</g>
+<g id="lane-llm">
+<rect x="636" y="36" width="96" height="36" rx="8" fill="none" fill-opacity="1" stroke="#52514E" stroke-width="1.25"/>
+<text x="684" y="59" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-llm-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API</text>
+</g>
+<g id="step-1">
+<path d="M78 112H222" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="222.75,112 215.25,115.75 215.25,108.25" fill="#52514E" stroke="none"/>
+<text x="150" y="104" text-anchor="middle" fill="#0B0B0B" id="t-s1" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">1. aiAction 전송</text>
+<text x="150" y="130" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s1-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GraphQL</text>
+</g>
+<g id="step-2">
+<path d="M222 160H78" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="77.25,160 84.75,156.25 84.75,163.75" fill="#52514E" stroke="none"/>
+<text x="150" y="152" text-anchor="middle" fill="#0B0B0B" id="t-s2" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">2. requestId 반환</text>
+</g>
+<g id="step-3">
+<path d="M226 208H342" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="342.75,208 335.25,211.75 335.25,204.25" fill="#52514E" stroke="none"/>
+<text x="284" y="200" text-anchor="middle" fill="#0B0B0B" id="t-s3" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">3. 작업 큐잉</text>
+<text x="284" y="226" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s3-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Redis 경유</text>
+</g>
+<g id="step-4">
+<path d="M346 256H498" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="498.75,256 491.25,259.75 491.25,252.25" fill="#52514E" stroke="none"/>
+<text x="422" y="248" text-anchor="middle" fill="#0B0B0B" id="t-s4" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">4. POST /v2/chat/agent</text>
+</g>
+<g id="step-5">
+<circle cx="500" cy="296" r="4" fill="#52514E"/>
+<text x="512" y="300" fill="#0B0B0B" id="t-s5" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">5. 프롬프트 조립</text>
+<text x="512" y="316" font-size="11.5" fill="#52514E" id="t-s5-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">ReActAgent, 툴 목록 삽입</text>
+</g>
+<g id="step-6">
+<path d="M502 348H682" fill="none" stroke="#1BAF7A" stroke-width="1.25"/>
+<polygon points="682.75,348 675.25,351.75 675.25,344.25" fill="#1BAF7A" stroke="none"/>
+<text x="592" y="340" text-anchor="middle" fill="#0B0B0B" id="t-s6" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">6. POST /v1/chat/completions</text>
+</g>
+<g id="step-7">
+<path d="M682 392H502" fill="none" stroke="#1BAF7A" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="501.25,392 508.75,388.25 508.75,395.75" fill="#1BAF7A" stroke="none"/>
+<text x="592" y="384" text-anchor="middle" fill="#0B0B0B" id="t-s7" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">7. 스트림 응답</text>
+</g>
+<g id="step-8">
+<path d="M498 436H346" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="345.25,436 352.75,432.25 352.75,439.75" fill="#52514E" stroke="none"/>
+<text x="422" y="428" text-anchor="middle" fill="#0B0B0B" id="t-s8" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">8. 모델 응답</text>
+<text x="422" y="454" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s8-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">툴 선택 또는 최종답</text>
+</g>
+<g id="loop">
+<rect x="24" y="470" width="712" height="184" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="92" y="492" font-size="11.5" font-weight="600" fill="#0B0B0B" id="t-loop-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">반복: 툴이 필요할 때</text>
+<text x="92" y="508" font-size="11.5" fill="#52514E" id="t-loop-limit" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">최대 10회</text>
+</g>
+<g id="step-9">
+<circle cx="344" cy="514" r="4" fill="#52514E"/>
+<text x="356" y="518" fill="#0B0B0B" id="t-s9" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">9. 툴 실행</text>
+<text x="356" y="534" font-size="11.5" fill="#52514E" id="t-s9-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">이슈·에픽 조회 등</text>
+</g>
+<g id="step-10">
+<path d="M346 572H498" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="498.75,572 491.25,575.75 491.25,568.25" fill="#52514E" stroke="none"/>
+<path d="M502 572H682" fill="none" stroke="#1BAF7A" stroke-width="1.25"/>
+<polygon points="682.75,572 675.25,575.75 675.25,568.25" fill="#1BAF7A" stroke="none"/>
+<text x="422" y="564" text-anchor="middle" fill="#0B0B0B" id="t-s10" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">10. 툴 프롬프트 호출</text>
+<text x="422" y="590" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s10-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">POST /v1/prompts/chat</text>
+<text x="592" y="564" text-anchor="middle" fill="#0B0B0B" id="t-s10-llm" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM 호출</text>
+</g>
+<g id="step-11">
+<path d="M346 622H498" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="498.75,622 491.25,625.75 491.25,618.25" fill="#52514E" stroke="none"/>
+<path d="M502 622H682" fill="none" stroke="#1BAF7A" stroke-width="1.25"/>
+<polygon points="682.75,622 675.25,625.75 675.25,618.25" fill="#1BAF7A" stroke="none"/>
+<text x="422" y="614" text-anchor="middle" fill="#0B0B0B" id="t-s11" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">11. 다음 스텝 요청</text>
+<text x="422" y="640" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s11-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">scratchpad 누적 후 재호출</text>
+<text x="592" y="614" text-anchor="middle" fill="#0B0B0B" id="t-s11-llm" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM 호출</text>
+</g>
+<g id="step-12">
+<path d="M342 690H226" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="225.25,690 232.75,686.25 232.75,693.75" fill="#52514E" stroke="none"/>
+<text x="284" y="682" text-anchor="middle" fill="#0B0B0B" id="t-s12" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">12. 응답 전달</text>
+<text x="284" y="708" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s12-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Redis Pub/Sub</text>
+</g>
+<g id="step-13">
+<path d="M222 738H78" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="77.25,738 84.75,734.25 84.75,741.75" fill="#52514E" stroke="none"/>
+<text x="150" y="730" text-anchor="middle" fill="#0B0B0B" id="t-s13" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">13. 최종 답변 푸시</text>
+<text x="150" y="756" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s13-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">wss://…/-/cable</text>
+</g>
+</g>
+</svg>

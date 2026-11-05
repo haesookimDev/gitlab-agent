@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 584" role="img" aria-label="나가는 요청은 같고, 응답을 해석하는 방식만 다릅니다" width="760" height="584" xmlns="http://www.w3.org/2000/svg">
+<title>나가는 요청은 같고, 응답을 해석하는 방식만 다릅니다</title>
+<rect id="background" width="760" height="584" fill="#FFFFFF"/>
+<g id="diagram" transform="translate(0 -36)">
+<g fill="none" stroke="#52514E" stroke-width="1.25" id="connectors">
+<path d="M200 108V139"/>
+<polygon points="200,139.75 196.25,132.25 203.75,132.25" fill="#52514E" stroke="none"/>
+<path d="M560 108V139"/>
+<polygon points="560,139.75 556.25,132.25 563.75,132.25" fill="#52514E" stroke="none"/>
+<path d="M380 196V227"/>
+<polygon points="380,227.75 376.25,220.25 383.75,220.25" fill="#52514E" stroke="none"/>
+<path d="M380 284V315"/>
+<polygon points="380,315.75 376.25,308.25 383.75,308.25" fill="#52514E" stroke="none"/>
+</g>
+<g fill="none" stroke="#1BAF7A" stroke-width="1.25" id="llm-hop">
+<path d="M380 404V435"/>
+<polygon points="380,435.75 376.25,428.25 383.75,428.25" fill="#1BAF7A" stroke="none"/>
+<path d="M200 492V539" stroke-dasharray="5 4"/>
+<polygon points="200,539.75 196.25,532.25 203.75,532.25" fill="#1BAF7A" stroke="none"/>
+<path d="M560 492V539" stroke-dasharray="5 4"/>
+<polygon points="560,539.75 556.25,532.25 563.75,532.25" fill="#1BAF7A" stroke="none"/>
+</g>
+<g id="model-metadata">
+<rect x="40" y="52" width="320" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="200" y="76" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-meta-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">모델 메타데이터</text>
+<text x="200" y="94" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-meta-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">엔드포인트 · 모델명 · API 키</text>
+</g>
+<g id="prompt-template">
+<rect x="400" y="52" width="320" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="560" y="76" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-prompt-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">프롬프트 템플릿</text>
+<text x="560" y="94" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-prompt-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">모델 패밀리별 정의</text>
+</g>
+<g id="render">
+<rect x="40" y="140" width="680" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="164" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-render-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">메시지 렌더링</text>
+<text x="380" y="182" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-render-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">시스템·사용자 프롬프트와 툴 정의 결합</text>
+</g>
+<g id="litellm">
+<rect x="40" y="228" width="680" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="252" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-litellm-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LiteLLM 변환</text>
+<text x="380" y="270" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-litellm-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">custom_openai/ 접두사로 라우팅하고 접두사를 제거</text>
+</g>
+<g id="http-request">
+<rect x="40" y="316" width="680" height="88" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="340" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-http-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">HTTP 요청</text>
+<text x="380" y="356" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-http-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">POST (엔드포인트)/chat/completions</text>
+<text x="380" y="372" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-http-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Authorization: Bearer (API 키)</text>
+<text x="380" y="388" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-http-c" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">model · messages · tools · stream</text>
+</g>
+<g id="llm-api">
+<rect x="40" y="436" width="680" height="56" rx="8" fill="#EDEDEC" stroke="#52514E" stroke-width="2"/>
+<text x="380" y="460" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-llm-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API</text>
+<text x="380" y="478" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-llm-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">vLLM 등 OpenAI 호환 서버</text>
+</g>
+<text x="380" y="520" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-edge-stream" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">스트림 응답</text>
+<g id="classic-parse">
+<rect x="40" y="540" width="320" height="56" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="200" y="564" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-classic-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Classic Chat</text>
+<text x="200" y="582" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-classic-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">텍스트에서 생각과 선택 툴을 파싱</text>
+</g>
+<g id="dap-parse">
+<rect x="400" y="540" width="320" height="56" rx="8" fill="#EB6834" fill-opacity="0.12" stroke="#EB6834" stroke-width="1.25"/>
+<text x="560" y="564" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-dap-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Agentic Chat·DAP</text>
+<text x="560" y="582" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-dap-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">tool_calls 구조를 그대로 사용</text>
+</g>
+</g>
+</svg>
