@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 804" role="img" aria-label="Duo 통신은 폐쇄망 안에서 끝나고, 외부 경로는 송신 차단으로 막습니다" width="760" height="804" xmlns="http://www.w3.org/2000/svg">
+<title>Duo 통신은 폐쇄망 안에서 끝나고, 외부 경로는 송신 차단으로 막습니다</title>
+<rect id="background" width="760" height="804" fill="#FFFFFF"/>
+<g id="diagram">
+<g id="key">
+<line x1="24" y1="20" x2="48" y2="20" stroke="#52514E" stroke-width="1.25"/>
+<text x="56" y="24" font-size="11.5" fill="#52514E" id="t-key-internal" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">내부 통신</text>
+<line x1="132" y1="20" x2="156" y2="20" stroke="#D03B3B" stroke-width="1.25" stroke-dasharray="5 4"/>
+<text x="164" y="24" font-size="11.5" fill="#52514E" id="t-key-blocked" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">차단 대상 경로</text>
+<rect x="276" y="14" width="12" height="12" rx="2" fill="none" stroke="#0CA30C" stroke-width="2"/>
+<text x="294" y="24" font-size="11.5" fill="#52514E" id="t-key-boundary" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">폐쇄망 경계</text>
+</g>
+<g id="boundary">
+<rect x="24" y="40" width="712" height="452" rx="8" fill="none" stroke="#0CA30C" stroke-width="2"/>
+<text x="40" y="62" font-weight="600" fill="#0B0B0B" id="t-boundary-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">폐쇄망 (내부 네트워크)</text>
+</g>
+<g fill="none" stroke="#52514E" stroke-width="1.25" id="connectors">
+<path d="M148 132V171"/>
+<polygon points="148,171.75 144.25,164.25 151.75,164.25" fill="#52514E" stroke="none"/>
+<path d="M380 132V171"/>
+<polygon points="380,171.75 376.25,164.25 383.75,164.25" fill="#52514E" stroke="none"/>
+<path d="M488 104H503"/>
+<polygon points="503.75,104 496.25,107.75 496.25,100.25" fill="#52514E" stroke="none"/>
+<path d="M270 273V323"/>
+<polygon points="270,272.25 273.75,279.75 266.25,279.75" fill="#52514E" stroke="none"/>
+<polygon points="270,323.75 266.25,316.25 273.75,316.25" fill="#52514E" stroke="none"/>
+<path d="M520 380H559"/>
+<polygon points="559.75,380 552.25,383.75 552.25,376.25" fill="#52514E" stroke="none"/>
+</g>
+<text x="156" y="156" font-size="11.5" fill="#52514E" id="t-edge-https" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">HTTPS·WSS :443</text>
+<text x="388" y="156" font-size="11.5" fill="#52514E" id="t-edge-runner" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">HTTPS</text>
+<text x="278" y="302" font-size="11.5" fill="#52514E" id="t-edge-aigw" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">HTTP :5052 · gRPC :50052</text>
+<g id="user">
+<rect x="40" y="76" width="216" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="148" y="100" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-user-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">사용자</text>
+<text x="148" y="118" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-user-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">브라우저·IDE</text>
+</g>
+<g id="runner">
+<rect x="272" y="76" width="216" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="100" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-runner-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">CI 러너</text>
+<text x="380" y="118" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-runner-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">플로우 실행기</text>
+</g>
+<g id="registry">
+<rect x="504" y="76" width="216" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="612" y="100" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-registry-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">내부 레지스트리</text>
+<text x="612" y="118" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-registry-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">실행기 이미지 사본</text>
+</g>
+<g id="gitlab">
+<rect x="40" y="172" width="680" height="100" rx="8" fill="none" stroke="#E6E6E6" stroke-width="1.25"/>
+<text x="56" y="194" font-weight="600" fill="#0B0B0B" id="t-gitlab-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GitLab 인스턴스</text>
+<rect x="56" y="208" width="150" height="48" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="131" y="236" text-anchor="middle" fill="#0B0B0B" id="t-wh-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Workhorse</text>
+<rect x="222" y="208" width="150" height="48" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="297" y="236" text-anchor="middle" fill="#0B0B0B" id="t-puma-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Puma</text>
+<rect x="388" y="208" width="150" height="48" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="463" y="236" text-anchor="middle" fill="#0B0B0B" id="t-sidekiq-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Sidekiq</text>
+<rect x="554" y="208" width="150" height="48" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="629" y="236" text-anchor="middle" fill="#0B0B0B" id="t-store-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Redis·PostgreSQL</text>
+</g>
+<g id="ai-gateway">
+<rect x="40" y="324" width="480" height="96" rx="8" fill="none" stroke="#E6E6E6" stroke-width="1.25"/>
+<text x="56" y="346" font-weight="600" fill="#0B0B0B" id="t-aigw-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">AI Gateway 컨테이너</text>
+<rect x="56" y="356" width="216" height="48" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="164" y="384" text-anchor="middle" fill="#0B0B0B" id="t-aigw-api" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">AI Gateway API</text>
+<rect x="288" y="356" width="216" height="48" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="396" y="384" text-anchor="middle" fill="#0B0B0B" id="t-aigw-dws" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">DWS</text>
+</g>
+<g id="llm-api">
+<rect x="560" y="348" width="160" height="64" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="640" y="374" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-llm-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API</text>
+<text x="640" y="394" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-llm-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">내부 vLLM 엔드포인트</text>
+</g>
+<g id="egress-block">
+<rect x="40" y="436" width="680" height="40" rx="8" fill="#D03B3B" fill-opacity="0.12" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="380" y="461" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-egress-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">송신 기본 차단 · 방화벽 또는 NetworkPolicy</text>
+</g>
+<g id="blocked-path">
+<path d="M380 476V555" fill="none" stroke="#D03B3B" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="380,555.75 376.25,548.25 383.75,548.25" fill="#D03B3B" stroke="none"/>
+<path d="M372 512l16 16M388 512l-16 16" fill="none" stroke="#D03B3B" stroke-width="2.5"/>
+<text x="400" y="524" font-size="11.5" fill="#52514E" id="t-blocked-label" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">외부로 나가는 연결 차단</text>
+</g>
+<g id="internet">
+<rect x="24" y="556" width="712" height="224" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25" stroke-dasharray="5 4"/>
+<text x="40" y="578" font-weight="600" fill="#0B0B0B" id="t-internet-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">외부 인터넷 (연결되면 안 되는 목적지)</text>
+</g>
+<g id="ext-cloud">
+<rect x="40" y="592" width="332" height="52" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="206" y="614" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-ext-cloud-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GitLab 클라우드·구독</text>
+<text x="206" y="632" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-ext-cloud-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">cloud.gitlab.com · customers.gitlab.com</text>
+</g>
+<g id="ext-dws">
+<rect x="388" y="592" width="332" height="52" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="554" y="614" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-ext-dws-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">클라우드 DWS</text>
+<text x="554" y="632" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-ext-dws-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">duo-workflow-svc.runway.gitlab.net</text>
+</g>
+<g id="ext-llm">
+<rect x="40" y="652" width="332" height="52" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="206" y="674" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-ext-llm-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">벤더 LLM API</text>
+<text x="206" y="692" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-ext-llm-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">외부 모델 엔드포인트</text>
+</g>
+<g id="ext-mcp">
+<rect x="388" y="652" width="332" height="52" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="554" y="674" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-ext-mcp-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">외부 MCP 서버</text>
+<text x="554" y="692" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-ext-mcp-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">인터넷에 있는 MCP 도구</text>
+</g>
+<g id="ext-registry">
+<rect x="40" y="712" width="332" height="52" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="206" y="734" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-ext-registry-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">실행기 이미지·CLI 배포처</text>
+<text x="206" y="752" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-ext-registry-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">registry.gitlab.com · registry.npmjs.org</text>
+</g>
+<g id="ext-telemetry">
+<rect x="388" y="712" width="332" height="52" rx="8" fill="none" stroke="#D03B3B" stroke-width="1.25"/>
+<text x="554" y="734" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-ext-telemetry-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">버전 확인·이벤트 추적</text>
+<text x="554" y="752" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-ext-telemetry-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">version.gitlab.com · events.gitlab.net</text>
+</g>
+</g>
+</svg>

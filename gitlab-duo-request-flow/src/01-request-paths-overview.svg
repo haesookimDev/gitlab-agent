@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 836" role="img" aria-label="두 경로는 AI Gateway 컨테이너에서 LLM API 호출로 합쳐집니다" width="760" height="836" xmlns="http://www.w3.org/2000/svg">
+<title>두 경로는 AI Gateway 컨테이너에서 LLM API 호출로 합쳐집니다</title>
+<rect id="background" width="760" height="836" fill="#FFFFFF"/>
+<g id="diagram">
+<g id="key">
+<rect x="24" y="14" width="12" height="12" rx="2" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6"/>
+<text x="42" y="24" font-size="11.5" fill="#52514E" id="t-key-classic" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Classic Chat 경로</text>
+<rect x="160" y="14" width="12" height="12" rx="2" fill="#EB6834" fill-opacity="0.12" stroke="#EB6834"/>
+<text x="178" y="24" font-size="11.5" fill="#52514E" id="t-key-dap" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Agentic Chat·DAP 경로</text>
+<line x1="322" y1="20" x2="346" y2="20" stroke="#52514E" stroke-width="1.25" stroke-dasharray="4 4"/>
+<text x="354" y="24" font-size="11.5" fill="#52514E" id="t-key-inferred" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">문서로 확정되지 않은 연결</text>
+</g>
+<g id="user">
+<rect x="24" y="40" width="712" height="44" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="67" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-user-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">사용자 (웹 UI · IDE)</text>
+</g>
+<g id="gitlab-instance">
+<rect x="24" y="124" width="712" height="336" rx="8" fill="none" stroke="#E6E6E6" stroke-width="1.25"/>
+<text x="40" y="146" font-weight="600" fill="#0B0B0B" id="t-gitlab-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GitLab 인스턴스</text>
+</g>
+<g id="ai-gateway-container">
+<rect x="24" y="500" width="712" height="212" rx="8" fill="none" stroke="#E6E6E6" stroke-width="1.25"/>
+<text x="40" y="522" font-weight="600" fill="#0B0B0B" id="t-aigw-container-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">AI Gateway 컨테이너</text>
+</g>
+<g fill="none" stroke="#52514E" stroke-width="1.25" id="connectors">
+<path d="M200 84V159"/>
+<polygon points="200,159.75 196.25,152.25 203.75,152.25" fill="#52514E" stroke="none"/>
+<path d="M560 84V159"/>
+<polygon points="560,159.75 556.25,152.25 563.75,152.25" fill="#52514E" stroke="none"/>
+<path d="M100 216V255"/>
+<polygon points="100,255.75 96.25,248.25 103.75,248.25" fill="#52514E" stroke="none"/>
+<path d="M320 216V255"/>
+<polygon points="320,255.75 316.25,248.25 323.75,248.25" fill="#52514E" stroke="none"/>
+<path d="M200 328V371"/>
+<polygon points="200,371.75 196.25,364.25 203.75,364.25" fill="#52514E" stroke="none"/>
+<path d="M200 444V539"/>
+<polygon points="200,539.75 196.25,532.25 203.75,532.25" fill="#52514E" stroke="none"/>
+<path d="M560 216V539"/>
+<polygon points="560,539.75 556.25,532.25 563.75,532.25" fill="#52514E" stroke="none"/>
+<path d="M200 612V639"/>
+<polygon points="200,639.75 196.25,632.25 203.75,632.25" fill="#52514E" stroke="none"/>
+<path d="M560 612V639" stroke-dasharray="4 4"/>
+<polygon points="560,639.75 556.25,632.25 563.75,632.25" fill="#52514E" stroke="none"/>
+<path d="M380 696V759"/>
+<polygon points="380,759.75 376.25,752.25 383.75,752.25" fill="#52514E" stroke="none"/>
+</g>
+<text x="208" y="108" font-size="11.5" fill="#52514E" id="t-edge-graphql" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GraphQL · ActionCable</text>
+<text x="568" y="108" font-size="11.5" fill="#52514E" id="t-edge-websocket" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">WebSocket</text>
+<text x="108" y="240" font-size="11.5" fill="#52514E" id="t-edge-puma" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GraphQL · /-/cable</text>
+<text x="328" y="240" font-size="11.5" fill="#52514E" id="t-edge-preauth" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">/ws 사전 인증</text>
+<text x="568" y="300" font-size="11.5" fill="#52514E" id="t-edge-action" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Action 대리 실행</text>
+<text x="208" y="354" font-size="11.5" fill="#52514E" id="t-edge-queue" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Redis 큐</text>
+<text x="208" y="484" font-size="11.5" fill="#52514E" id="t-edge-http" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">HTTP :5052</text>
+<text x="568" y="484" font-size="11.5" fill="#52514E" id="t-edge-grpc" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">gRPC :50052</text>
+<text x="388" y="732" font-size="11.5" fill="#52514E" id="t-edge-post" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">POST /v1/chat/completions · Bearer 인증</text>
+<g id="workhorse">
+<rect x="40" y="160" width="680" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="184" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-wh-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Workhorse</text>
+<text x="380" y="202" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-wh-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">HTTP·WebSocket 요청을 받아 Puma 또는 DWS로 연결합니다</text>
+</g>
+<g id="puma">
+<rect x="40" y="256" width="320" height="72" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="56" y="280" font-weight="600" fill="#0B0B0B" id="t-puma-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Puma (Rails)</text>
+<text x="56" y="296" font-size="11.5" fill="#52514E" id="t-puma-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">GraphQL 요청을 받아 Redis 큐에 넣습니다</text>
+<text x="56" y="312" font-size="11.5" fill="#52514E" id="t-puma-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Action Cable로 응답을 푸시합니다</text>
+</g>
+<g id="sidekiq">
+<rect x="40" y="372" width="320" height="72" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="56" y="396" font-weight="600" fill="#0B0B0B" id="t-sidekiq-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Sidekiq</text>
+<text x="56" y="412" font-size="11.5" fill="#52514E" id="t-rails-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">ReAct 루프와 툴 실행을 맡습니다</text>
+<text x="56" y="428" font-size="11.5" fill="#52514E" id="t-sidekiq-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">AI Gateway로 요청을 보냅니다</text>
+</g>
+<g id="ai-gateway-api">
+<rect x="40" y="540" width="320" height="72" rx="8" fill="#2A78D6" fill-opacity="0.12" stroke="#2A78D6" stroke-width="1.25"/>
+<text x="56" y="564" font-weight="600" fill="#0B0B0B" id="t-aigw-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">AI Gateway API</text>
+<text x="56" y="580" font-size="11.5" fill="#52514E" id="t-aigw-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">프롬프트를 조립하고 LLM을 호출합니다</text>
+<text x="56" y="596" font-size="11.5" fill="#52514E" id="t-aigw-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">/v2/chat/agent · /v1/prompts/chat</text>
+</g>
+<g id="dws">
+<rect x="400" y="540" width="320" height="72" rx="8" fill="#EB6834" fill-opacity="0.12" stroke="#EB6834" stroke-width="1.25"/>
+<text x="416" y="564" font-weight="600" fill="#0B0B0B" id="t-dws-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">DWS (Duo Workflow Service)</text>
+<text x="416" y="580" font-size="11.5" fill="#52514E" id="t-dws-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LangGraph로 에이전트 루프를 실행합니다</text>
+<text x="416" y="596" font-size="11.5" fill="#52514E" id="t-dws-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">상태는 Rails 체크포인트로 저장합니다</text>
+</g>
+<g id="litellm">
+<rect x="40" y="640" width="680" height="56" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="380" y="664" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-litellm-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LiteLLM</text>
+<text x="380" y="682" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-litellm-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">custom_openai/ 식별자로 라우팅하고 OpenAI 형식으로 호출합니다</text>
+</g>
+<g id="llm-api">
+<rect x="24" y="760" width="712" height="56" rx="8" fill="#EDEDEC" stroke="#52514E" stroke-width="2"/>
+<text x="380" y="784" text-anchor="middle" font-weight="600" fill="#0B0B0B" id="t-llm-name" font-size="13" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API</text>
+<text x="380" y="802" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-llm-a" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">vLLM 등 OpenAI 호환 서버</text>
+</g>
+</g>
+</svg>

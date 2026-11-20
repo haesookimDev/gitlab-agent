@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 760 674" role="img" aria-label="Agentic Chat·DAP는 DWS가 루프를 돌리고 Workhorse가 Action을 대신 실행합니다" width="760" height="674" xmlns="http://www.w3.org/2000/svg">
+<title>Agentic Chat·DAP는 DWS가 루프를 돌리고 Workhorse가 Action을 대신 실행합니다</title>
+<rect id="background" width="760" height="674" fill="#FFFFFF"/>
+<g id="diagram" transform="translate(0 -30)">
+<g id="key">
+<path d="M24 48H48" fill="none" stroke="#1BAF7A" stroke-width="1.25"/>
+<polygon points="48.75,48 41.25,51.75 41.25,44.25" fill="#1BAF7A" stroke="none"/>
+<text x="56" y="52" font-size="11.5" fill="#52514E" id="t-key-llm" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API 구간</text>
+<path d="M150 48H174" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="174.75,48 167.25,51.75 167.25,44.25" fill="#52514E" stroke="none"/>
+<text x="182" y="52" font-size="11.5" fill="#52514E" id="t-key-reply" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">응답</text>
+</g>
+<g id="lifelines">
+<line x1="76" y1="104" x2="76" y2="680" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="224" y1="104" x2="224" y2="680" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="372" y1="104" x2="372" y2="680" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="520" y1="104" x2="520" y2="680" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+<line x1="668" y1="104" x2="668" y2="680" stroke="#E6E6E6" stroke-width="1.25" stroke-dasharray="4 4"/>
+</g>
+<g id="lane-ui">
+<rect x="24" y="68" width="104" height="36" rx="8" fill="none" fill-opacity="1" stroke="#52514E" stroke-width="1.25"/>
+<text x="76" y="91" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-ui-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">웹 UI</text>
+</g>
+<g id="lane-wh">
+<rect x="172" y="68" width="104" height="36" rx="8" fill="#EB6834" fill-opacity="0.12" stroke="#EB6834" stroke-width="1.25"/>
+<text x="224" y="91" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-wh-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Workhorse</text>
+</g>
+<g id="lane-rails">
+<rect x="320" y="68" width="104" height="36" rx="8" fill="none" fill-opacity="1" stroke="#52514E" stroke-width="1.25"/>
+<text x="372" y="91" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-rails-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">Rails (Puma)</text>
+</g>
+<g id="lane-dws">
+<rect x="468" y="68" width="104" height="36" rx="8" fill="#EB6834" fill-opacity="0.12" stroke="#EB6834" stroke-width="1.25"/>
+<text x="520" y="91" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-dws-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">DWS</text>
+</g>
+<g id="lane-llm">
+<rect x="616" y="68" width="104" height="36" rx="8" fill="none" fill-opacity="1" stroke="#52514E" stroke-width="1.25"/>
+<text x="668" y="91" text-anchor="middle" font-size="13" font-weight="600" fill="#0B0B0B" id="t-lane-llm-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">LLM API</text>
+</g>
+<g id="step-1">
+<path d="M78 144H222" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="222.75,144 215.25,147.75 215.25,140.25" fill="#52514E" stroke="none"/>
+<text x="150" y="136" text-anchor="middle" fill="#0B0B0B" id="t-s1" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">1. WebSocket 연결</text>
+</g>
+<g id="step-2">
+<path d="M226 188H370" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="370.75,188 363.25,191.75 363.25,184.25" fill="#52514E" stroke="none"/>
+<text x="298" y="180" text-anchor="middle" fill="#0B0B0B" id="t-s2" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">2. 사전 인증 (/ws)</text>
+</g>
+<g id="step-3">
+<path d="M370 232H226" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="225.25,232 232.75,228.25 232.75,235.75" fill="#52514E" stroke="none"/>
+<text x="298" y="224" text-anchor="middle" fill="#0B0B0B" id="t-s3" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">3. DWS 설정·모델 메타</text>
+</g>
+<g id="step-4">
+<path d="M226 276H518" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="518.75,276 511.25,279.75 511.25,272.25" fill="#52514E" stroke="none"/>
+<text x="446" y="268" text-anchor="middle" fill="#0B0B0B" id="t-s4" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">4. gRPC 스트림 오픈</text>
+<text x="446" y="292" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s4-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">ExecuteWorkflow</text>
+</g>
+<g id="step-5">
+<path d="M78 328H518" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="518.75,328 511.25,331.75 511.25,324.25" fill="#52514E" stroke="none"/>
+<text x="446" y="320" text-anchor="middle" fill="#0B0B0B" id="t-s5" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">5. 사용자 입력</text>
+<text x="446" y="344" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s5-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">ClientEvent로 전달</text>
+</g>
+<g id="loop">
+<rect x="24" y="364" width="712" height="248" rx="8" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<text x="84" y="386" font-size="11.5" font-weight="600" fill="#0B0B0B" id="t-loop-name" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">반복: 툴 호출 종료까지</text>
+</g>
+<g id="step-6">
+<path d="M522 416H666" fill="none" stroke="#1BAF7A" stroke-width="1.25"/>
+<polygon points="666.75,416 659.25,419.75 659.25,412.25" fill="#1BAF7A" stroke="none"/>
+<text x="594" y="408" text-anchor="middle" fill="#0B0B0B" id="t-s6" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">6. messages + tools</text>
+</g>
+<g id="step-7">
+<path d="M666 460H522" fill="none" stroke="#1BAF7A" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="521.25,460 528.75,456.25 528.75,463.75" fill="#1BAF7A" stroke="none"/>
+<text x="594" y="452" text-anchor="middle" fill="#0B0B0B" id="t-s7" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">7. tool_calls</text>
+</g>
+<g id="step-8">
+<path d="M518 504H226" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="225.25,504 232.75,500.25 232.75,507.75" fill="#52514E" stroke="none"/>
+<text x="446" y="496" text-anchor="middle" fill="#0B0B0B" id="t-s8" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">8. Action 전송</text>
+<text x="446" y="520" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s8-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">RunHTTPRequest</text>
+<text x="446" y="535" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s8-c" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">RunMCPTool</text>
+</g>
+<g id="step-9">
+<path d="M226 560H370" fill="none" stroke="#52514E" stroke-width="1.25"/>
+<polygon points="370.75,560 363.25,563.75 363.25,556.25" fill="#52514E" stroke="none"/>
+<text x="298" y="552" text-anchor="middle" fill="#0B0B0B" id="t-s9" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">9. Rails API·MCP 호출</text>
+</g>
+<g id="step-10">
+<path d="M226 596H518" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="518.75,596 511.25,599.75 511.25,592.25" fill="#52514E" stroke="none"/>
+<text x="446" y="588" text-anchor="middle" fill="#0B0B0B" id="t-s10" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">10. ActionResponse</text>
+</g>
+<g id="step-11">
+<path d="M518 648H78" fill="none" stroke="#52514E" stroke-width="1.25" stroke-dasharray="5 4"/>
+<polygon points="77.25,648 84.75,644.25 84.75,651.75" fill="#52514E" stroke="none"/>
+<text x="446" y="640" text-anchor="middle" fill="#0B0B0B" id="t-s11" font-size="12" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">11. 응답·체크포인트</text>
+<text x="446" y="664" text-anchor="middle" font-size="11.5" fill="#52514E" id="t-s11-b" font-family="'Noto Sans KR', 'Noto Sans CJK KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">NewCheckpoint</text>
+</g>
+</g>
+</svg>
